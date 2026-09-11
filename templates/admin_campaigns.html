@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+    /* ============================ */
+    /* 🎛️ ADMIN LAYOUT & SIDEBAR    */
+    /* ============================ */
+    .admin-layout { display: flex; min-height: 100vh; background: var(--bg-color); }
+    
+    .admin-sidebar { 
+        width: 260px; background: var(--panel-color); border-right: 1px solid var(--border-color); 
+        position: fixed; height: 100vh; display: flex; flex-direction: column; 
+        padding: 30px 0; z-index: 100;
+    }
+    
+    .admin-main { flex: 1; margin-left: 260px; padding: 40px; max-width: 1200px; position: relative; }
+
+    .sidebar-logo { font-family: var(--font-head); font-size: 28px; color: var(--text-color); text-align: center; margin-bottom: 50px; letter-spacing: 3px; font-weight: 600;}
+    .sidebar-logo span { color: var(--accent-color); }
+    
+    .sidebar-menu { display: flex; flex-direction: column; gap: 8px; padding: 0 20px; flex: 1;}
+    .sidebar-link { 
+        display: flex; align-items: center; gap: 15px; padding: 14px 20px; 
+        color: var(--muted-color); text-decoration: none; font-size: 12px; font-weight: 700; 
+        text-transform: uppercase; letter-spacing: 1px; border-radius: 8px; transition: 0.3s; 
+    }
+    .sidebar-link:hover, .sidebar-link.active { background: rgba(198,167,94,0.1); color: var(--accent-color); }
+    .sidebar-link i { font-size: 18px; width: 24px; text-align: center; }
+    
+    .sidebar-bottom { padding: 0 20px; margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 25px; }
+
+    /* ============================ */
+    /* ✨ LIQUID GLASS BASE CLASS   */
+    /* ============================ */
+    .glass-panel {
+        background: rgba(15, 15, 15, 0.45);
+        backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        border-radius: 16px;
+        transform: translateZ(0); -webkit-transform: translateZ(0);
+        will-change: transform, backdrop-filter, opacity;
+        backface-visibility: hidden;
+    }
+    body.light-theme .glass-panel { background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(0, 0, 0, 0.05); }
+
+    @keyframes fadeUpCard { from { opacity: 0; transform: translateY(30px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+    /* ============================ */
+    /* 🎟️ CAMPAIGNS PAGE STYLES   */
+    /* ============================ */
+    .page-title { font-family: var(--font-head); font-size: 32px; color: var(--text-color); margin-bottom: 5px; display: flex; align-items: center; gap: 15px; }
+    .page-sub { font-size: 11px; color: var(--muted-color); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 40px; font-weight: 700; }
+
+    /* Creation Form */
+    .create-box { padding: 35px; margin-bottom: 50px; opacity: 0; animation: fadeUpCard 0.6s cubic-bezier(0.2, 1, 0.3, 1) forwards; }
+    .box-header { display: flex; align-items: center; gap: 10px; font-family: var(--font-head); font-size: 20px; color: var(--accent-color); margin-bottom: 25px; border-bottom: 1px dashed var(--border-color); padding-bottom: 15px; }
+    
+    .form-grid { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 20px; align-items: flex-end; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
+    .form-label { font-size: 10px; font-weight: 800; color: var(--muted-color); text-transform: uppercase; letter-spacing: 1.5px; }
+    .form-control { 
+        background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); color: var(--text-color); 
+        padding: 15px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; outline: none; transition: 0.3s; 
+    }
+    .form-control:focus { border-color: var(--accent-color); box-shadow: 0 0 15px rgba(198,167,94,0.1); background: rgba(0,0,0,0.4); }
+    body.light-theme .form-control { background: rgba(255,255,255,0.4); color: #000; }
+    
+    .btn-create { 
+        background: var(--accent-color); color: #000; border: none; padding: 16px 30px; 
+        border-radius: 8px; font-weight: 800; font-size: 11px; text-transform: uppercase; 
+        letter-spacing: 1.5px; cursor: pointer; transition: 0.3s; height: 50px; display: flex; align-items: center; gap: 8px;
+    }
+    .btn-create:hover { background: #FFF; box-shadow: 0 10px 25px rgba(255,255,255,0.2); transform: translateY(-2px); }
+
+    /* VIP Ticket Cards */
+    .coupons-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 30px; }
+    
+    .vip-ticket { 
+        display: flex; align-items: stretch; border-radius: 16px; overflow: hidden; 
+        transition: 0.4s; opacity: 0; animation: fadeUpCard 0.6s cubic-bezier(0.2, 1, 0.3, 1) forwards;
+        border: 1px solid rgba(198,167,94,0.15); position: relative;
+    }
+    .vip-ticket:hover { transform: translateY(-5px); border-color: var(--accent-color); box-shadow: 0 15px 35px rgba(198,167,94,0.15); }
+    
+    .ticket-left { 
+        background: linear-gradient(135deg, rgba(198,167,94,0.1), rgba(0,0,0,0.4)); 
+        padding: 25px; flex: 1; border-right: 2px dashed rgba(198,167,94,0.2);
+        display: flex; flex-direction: column; justify-content: center;
+    }
+    body.light-theme .ticket-left { background: linear-gradient(135deg, rgba(198,167,94,0.1), rgba(255,255,255,0.4)); }
+
+    .ticket-right { 
+        background: rgba(0,0,0,0.2); padding: 20px; width: 100px; 
+        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px;
+    }
+    body.light-theme .ticket-right { background: rgba(255,255,255,0.4); }
+
+    .c-discount { font-family: var(--font-head); font-size: 36px; font-weight: 600; color: var(--accent-color); line-height: 1; margin-bottom: 5px; }
+    .c-discount span { font-size: 16px; }
+    .c-code { font-size: 14px; font-weight: 800; color: var(--text-color); letter-spacing: 2px; text-transform: uppercase; background: rgba(255,255,255,0.05); padding: 8px 15px; border-radius: 6px; display: inline-block; border: 1px solid rgba(255,255,255,0.1); }
+    .c-min { font-size: 10px; color: var(--muted-color); text-transform: uppercase; letter-spacing: 1px; margin-top: 15px; font-weight: 600; }
+    
+    .c-status { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; writing-mode: vertical-rl; transform: rotate(180deg); color: #2ecc71; letter-spacing: 3px;}
+    .btn-delete { background: rgba(231, 76, 60, 0.1); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.3); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; font-size: 12px; }
+    .btn-delete:hover { background: #e74c3c; color: #FFF; transform: scale(1.1); }
+
+    /* Empty State */
+    .empty-state { text-align: center; padding: 60px 20px; border-radius: 16px; border: 1px dashed var(--border-color); animation: fadeUpCard 0.5s ease forwards; }
+    .empty-icon { font-size: 50px; color: var(--muted-color); opacity: 0.3; margin-bottom: 20px; }
+
+    /* 🔥 CUSTOM GLASS CONFIRMATION MODAL */
+    .custom-modal-overlay {
+        display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 10000;
+        align-items: center; justify-content: center; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    }
+    .custom-modal-box {
+        width: 90%; max-width: 400px; padding: 40px 30px; text-align: center; border-radius: 20px;
+        animation: scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    @keyframes scaleUp { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    
+    .modal-icon { font-size: 40px; color: #e74c3c; margin-bottom: 20px; animation: pulseIcon 2s infinite; }
+    @keyframes pulseIcon { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+    .modal-btn-row { display: flex; gap: 15px; justify-content: center; margin-top: 30px; }
+    .btn-cancel { flex: 1; padding: 14px; background: rgba(255,255,255,0.05); color: var(--text-color); border: 1px solid var(--glass-border); border-radius: 30px; font-weight: 700; text-transform: uppercase; font-size: 11px; cursor: pointer; transition: 0.3s; letter-spacing: 1px;}
+    .btn-cancel:hover { background: rgba(255,255,255,0.1); color: #fff; border-color: #fff; }
+    
+    .btn-confirm-delete { flex: 1; padding: 14px; background: #e74c3c; color: #fff; border: none; border-radius: 30px; font-weight: 800; text-transform: uppercase; font-size: 11px; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 20px rgba(231,76,60,0.3); letter-spacing: 1px;}
+    .btn-confirm-delete:hover { background: #c0392b; transform: translateY(-2px); box-shadow: 0 15px 25px rgba(231,76,60,0.4); }
+
+    @media(max-width: 900px) {
+        .admin-sidebar { display: none; }
+        .admin-main { margin-left: 0; padding: 20px; }
+        .form-grid { grid-template-columns: 1fr; gap: 15px; }
+        .btn-create { width: 100%; justify-content: center; }
+        .coupons-grid { grid-template-columns: 1fr; }
+    }
+</style>
+
+<div class="admin-layout">
+    <!-- 🔥 SIDEBAR -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-logo">AIV<span>A</span>RO</div>
+        <nav class="sidebar-menu">
+            <a href="/admin" class="sidebar-link"><i class="fas fa-box"></i> Products</a>
+            <a href="/admin/orders" class="sidebar-link"><i class="fas fa-shopping-bag"></i> Orders</a>
+            <a href="/admin/users" class="sidebar-link"><i class="fas fa-users"></i> Customers</a>
+            <a href="/admin/campaigns" class="sidebar-link active"><i class="fas fa-ticket-alt"></i> Coupons</a>
+            <a href="/admin/banners" class="sidebar-link"><i class="fas fa-image"></i> Banners</a>
+        </nav>
+        <div class="sidebar-bottom">
+            <a href="/" class="sidebar-link" style="color: var(--muted-color);"><i class="fas fa-store"></i> Storefront</a>
+            <a href="/logout" class="sidebar-link" style="color: #ff4d4d;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </aside>
+
+    <!-- 📦 MAIN CONTENT -->
+    <main class="admin-main">
+        <h2 class="page-title"><i class="fas fa-gem" style="color: var(--accent-color);"></i> Marketing Campaigns</h2>
+        <div class="page-sub">Create Exclusive Discount Codes to Boost Sales</div>
+
+        <!-- 🎫 CREATE COUPON FORM -->
+        <div class="create-box glass-panel">
+            <div class="box-header">
+                <i class="fas fa-plus-circle"></i> Mint New VIP Pass
+            </div>
+            
+            <form action="/admin/add-coupon" method="POST" class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Exclusive Code</label>
+                    <input type="text" name="code" class="form-control" placeholder="E.G. AIVARO26" required style="text-transform: uppercase;">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Discount (%)</label>
+                    <input type="number" name="discount" class="form-control" placeholder="e.g. 15" min="1" max="100" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Min Spend (৳)</label>
+                    <input type="number" name="min_spend" class="form-control" placeholder="e.g. 2000" required>
+                </div>
+                <button type="submit" class="btn-create"><i class="fas fa-magic"></i> Generate</button>
+            </form>
+        </div>
+
+        <h3 style="font-family: var(--font-head); font-size: 20px; color: var(--text-color); margin-bottom: 25px; border-bottom: 1px dashed var(--border-color); padding-bottom: 15px;">Active Passes</h3>
+
+        <!-- 🎫 VIP TICKETS GRID -->
+        <div class="coupons-grid">
+            {% if coupons %}
+                {% for coupon in coupons %}
+                <div class="vip-ticket glass-panel" style="animation-delay: {{ loop.index0 * 0.1 }}s;">
+                    <div class="ticket-left">
+                        <div class="c-discount">{{ coupon.discount_percent }}<span>% OFF</span></div>
+                        <div style="margin: 15px 0;">
+                            <span class="c-code">{{ coupon.code }}</span>
+                        </div>
+                        <div class="c-min">Requires Min. Spend ৳ {{ coupon.min_spend }}</div>
+                    </div>
+                    <div class="ticket-right">
+                        <div class="c-status">ACTIVE</div>
+                        <!-- 🔥 UPDATED DELETE FORM WITHOUT BROWSER CONFIRM -->
+                        <form id="deleteForm-{{ coupon.id }}" action="/admin/delete-coupon/{{ coupon.id }}" method="POST">
+                            <button type="button" class="btn-delete" title="Revoke Pass" onclick="openDeleteModal('deleteForm-{{ coupon.id }}')"><i class="fas fa-trash-alt"></i></button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state glass-panel" style="grid-column: 1 / -1;">
+                    <i class="fas fa-ticket-alt empty-icon"></i>
+                    <h3 style="color: var(--text-color); font-family: var(--font-head); font-size: 24px; margin-bottom: 10px;">No Active Passes</h3>
+                    <p style="font-size: 12px; color: var(--muted-color); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Generate your first promotional campaign above to get started.</p>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+</div>
+
+<!-- 🔥 CUSTOM GLASS CONFIRMATION MODAL -->
+<div id="deleteConfirmModal" class="custom-modal-overlay">
+    <div class="glass-panel custom-modal-box">
+        <i class="fas fa-exclamation-triangle modal-icon"></i>
+        <h3 style="font-family: var(--font-head); font-size: 26px; color: var(--text-color); margin-bottom: 10px;">Revoke VIP Pass?</h3>
+        <p style="font-size: 12px; color: var(--muted-color); margin-bottom: 20px; line-height: 1.6;">Are you sure you want to permanently delete this discount code? Customers will no longer be able to use it.</p>
+        
+        <div class="modal-btn-row">
+            <button onclick="closeDeleteModal()" class="btn-cancel">Cancel</button>
+            <button onclick="executeDelete()" class="btn-confirm-delete">Yes, Revoke</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentDeleteFormId = null;
+
+    function openDeleteModal(formId) {
+        currentDeleteFormId = formId;
+        document.getElementById('deleteConfirmModal').style.display = 'flex';
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteConfirmModal').style.display = 'none';
+        currentDeleteFormId = null;
+    }
+
+    function executeDelete() {
+        if (currentDeleteFormId) {
+            document.getElementById(currentDeleteFormId).submit();
+        }
+    }
+</script>
+
+{% endblock %}

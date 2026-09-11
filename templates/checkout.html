@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+    .checkout-wrap { max-width: 1200px; margin: 40px auto; padding: 0 4vw; display: grid; grid-template-columns: 1.5fr 1fr; gap: 40px; align-items: start; }
+    
+    .panel { background: rgba(15,15,15,0.4); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 35px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
+    body.light-theme .panel { background: rgba(255,255,255,0.6); border-color: rgba(0,0,0,0.05); }
+    
+    .sec-title { font-family: var(--font-head); font-size: 22px; color: var(--accent-color); margin-bottom: 25px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+    body.light-theme .sec-title { border-bottom-color: rgba(0,0,0,0.1); }
+    
+    /* 🔥 GUEST LOGIN PROMPT */
+    .guest-prompt { background: linear-gradient(135deg, rgba(198,167,94,0.1) 0%, rgba(0,0,0,0.2) 100%); border: 1px solid rgba(198,167,94,0.3); border-radius: 16px; padding: 30px 25px; text-align: center; position: relative; overflow: hidden; }
+    body.light-theme .guest-prompt { background: linear-gradient(135deg, rgba(198,167,94,0.1) 0%, rgba(255,255,255,0.5) 100%); }
+    .guest-prompt::before { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(to right, transparent, rgba(198,167,94,0.1), transparent); transform: skewX(-25deg); animation: shinePrompt 5s infinite; }
+    @keyframes shinePrompt { 0% {left: -100%;} 20% {left: 200%;} 100% {left: 200%;} }
+
+    .gp-icon { font-size: 35px; color: var(--accent-color); margin-bottom: 15px; filter: drop-shadow(0 0 10px rgba(198,167,94,0.3)); }
+    .gp-title { font-size: 18px; font-weight: bold; color: var(--text-color); margin-bottom: 10px; font-family: var(--font-head); letter-spacing: 1px; }
+    .gp-text { font-size: 12px; color: var(--muted-color); margin-bottom: 25px; line-height: 1.6; }
+    
+    .gp-buttons { display: flex; gap: 15px; justify-content: center; }
+    .btn-outline, .btn-fill { padding: 12px 30px; border-radius: 30px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.3s; text-decoration: none; display: flex; align-items: center; gap: 8px; justify-content: center; }
+    .btn-outline { border: 1px solid var(--accent-color); color: var(--accent-color); background: transparent; }
+    .btn-outline:hover { background: rgba(198,167,94,0.1); transform: translateY(-2px); }
+    .btn-fill { background: var(--accent-color); color: #000; border: none; box-shadow: 0 5px 15px rgba(198,167,94,0.2); }
+    .btn-fill:hover { background: #FFF; box-shadow: 0 10px 25px rgba(198,167,94,0.4); transform: translateY(-2px); }
+
+    .divider { display: flex; align-items: center; text-align: center; margin: 35px 0; color: var(--muted-color); font-size: 11px; font-weight: 700; letter-spacing: 2px; }
+    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px dashed rgba(255,255,255,0.1); }
+    body.light-theme .divider::before, body.light-theme .divider::after { border-bottom-color: rgba(0,0,0,0.1); }
+    .divider:not(:empty)::before { margin-right: 1em; }
+    .divider:not(:empty)::after { margin-left: 1em; }
+
+    /* FORM STYLES */
+    .form-group { margin-bottom: 20px; }
+    .form-label { font-size: 11px; font-weight: 800; color: var(--muted-color); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: block; }
+    .form-control { width: 100%; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.08); color: var(--text-color); padding: 15px 18px; border-radius: 8px; outline: none; transition: 0.3s; font-family: var(--font-body); font-size: 13px; }
+    .form-control:focus { border-color: var(--accent-color); background: rgba(0,0,0,0.4); }
+    body.light-theme .form-control { background: rgba(255,255,255,0.4); color: #000; border-color: rgba(0,0,0,0.1); }
+    body.light-theme .form-control:focus { background: #fff; }
+
+    /* ERROR ANIMATION */
+    @keyframes shakeError { 0% { transform: translateX(0); } 25% { transform: translateX(-8px); } 50% { transform: translateX(8px); } 75% { transform: translateX(-8px); } 100% { transform: translateX(0); } }
+    .input-error { animation: shakeError 0.4s ease-in-out; border-color: #ff4d4d !important; background: rgba(255, 77, 77, 0.05) !important; box-shadow: 0 0 12px rgba(255, 77, 77, 0.3) !important; }
+
+    /* SUMMARY STYLES */
+    .item-row { display: flex; gap: 15px; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    body.light-theme .item-row { border-bottom-color: rgba(0,0,0,0.05); }
+    .item-row img { width: 65px; height: 85px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
+    .item-info { flex: 1; }
+    .item-name { font-size: 14px; font-weight: bold; margin-bottom: 5px; color: var(--text-color); }
+    .item-meta { font-size: 11px; color: var(--muted-color); text-transform: uppercase; letter-spacing: 1px; }
+    .item-price { font-weight: 800; font-size: 14px; color: var(--accent-color); }
+    
+    .summary-row { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--muted-color); margin-bottom: 15px; }
+    .summary-total { display: flex; justify-content: space-between; font-size: 20px; font-weight: bold; color: var(--accent-color); margin-top: 20px; padding-top: 20px; border-top: 1px dashed rgba(255,255,255,0.1); }
+    
+    .btn-place-order { width: 100%; background: var(--accent-color); color: #000; padding: 20px; border: none; border-radius: 30px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; margin-top: 25px; cursor: pointer; transition: 0.4s; box-shadow: 0 10px 25px rgba(198,167,94,0.3); font-size: 13px; }
+    .btn-place-order:hover { background: #FFF; transform: translateY(-3px); box-shadow: 0 15px 35px rgba(198,167,94,0.5); }
+
+    /* 🔥 COUPON BOX */
+    .coupon-box { display: flex; margin-bottom: 25px; }
+    .coupon-box input { flex: 1; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: var(--text-color); padding: 12px 15px; border-radius: 30px 0 0 30px; font-size: 12px; outline: none; border-right: none; }
+    .coupon-box button { background: var(--accent-color); color: #000; border: none; padding: 0 25px; border-radius: 0 30px 30px 0; font-weight: 800; font-size: 11px; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+    .coupon-box button:hover { background: #FFF; }
+    body.light-theme .coupon-box input { background: rgba(255,255,255,0.4); border-color: rgba(0,0,0,0.1); color: #000; border-right: none; }
+
+    @media (max-width: 768px) { 
+        .checkout-wrap { grid-template-columns: 1fr; gap: 25px; margin-top: 20px; padding: 0 15px; } 
+        .panel { padding: 25px 20px; }
+        .gp-buttons { flex-direction: column; gap: 12px; }
+        .btn-outline, .btn-fill { width: 100%; justify-content: center; padding: 15px; }
+    }
+</style>
+
+<div class="checkout-wrap">
+    
+    <!-- LEFT: FORMS -->
+    <div class="panel liquid-glass">
+        
+        {% if not current_user.is_authenticated %}
+        <div class="guest-prompt">
+            <i class="fas fa-crown gp-icon"></i>
+            <h3 class="gp-title">Unlock Premium Benefits</h3>
+            <p class="gp-text">Log in or sign up to securely track your orders, save shipping details, and access exclusive member-only discounts.</p>
+            <div class="gp-buttons">
+                <a href="/login?next=checkout" class="btn-fill"><i class="fas fa-sign-in-alt"></i> Login Now</a>
+                <a href="/signup" class="btn-outline"><i class="fas fa-user-plus"></i> Create Account</a>
+            </div>
+        </div>
+        <div class="divider">OR CONTINUE AS GUEST</div>
+        {% endif %}
+
+        <form action="/place-order" method="POST" enctype="multipart/form-data" id="checkoutForm">
+            <input type="hidden" name="applied_coupon" id="applied_coupon_input">
+            
+            <h2 class="sec-title"><i class="fas fa-map-marker-alt"></i> 1. Shipping Details</h2>
+            
+            <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" name="name" class="form-control" placeholder="E.g. Abid Hasan" value="{{ current_user.name if current_user.is_authenticated else '' }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Phone Number</label>
+                <input type="tel" name="phone" class="form-control" placeholder="E.g. 016XXXXXXXX" value="{{ current_user.phone if current_user.is_authenticated else '' }}" required>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <!-- 🔥 DYNAMIC DELIVERY REGION -->
+                <div class="form-group">
+                    <label class="form-label">Division / Region</label>
+                    <select name="division" id="divisionSelect" class="form-control" required>
+                        <option value="Dhaka City">Dhaka City (৳ 80)</option>
+                        <option value="Dhaka Sub-Urban">Dhaka Sub-Urban (৳ 100)</option>
+                        <option value="Chittagong">Chittagong (৳ 130)</option>
+                        <option value="Sylhet">Sylhet (৳ 130)</option>
+                        <option value="Rajshahi">Rajshahi (৳ 130)</option>
+                        <option value="Khulna">Khulna (৳ 130)</option>
+                        <option value="Barisal">Barisal (৳ 130)</option>
+                        <option value="Rangpur">Rangpur (৳ 130)</option>
+                        <option value="Mymensingh">Mymensingh (৳ 130)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">District / Area</label>
+                    <input type="text" name="district" class="form-control" placeholder="E.g. Mirpur 11" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Full Address (House, Road, Area)</label>
+                <textarea name="address" class="form-control" rows="3" placeholder="E.g. 5 No Lane, Sabuj Bangla..." required>{{ current_user.address if current_user.is_authenticated else '' }}</textarea>
+            </div>
+
+            <h2 class="sec-title" style="margin-top: 45px;"><i class="fas fa-wallet"></i> 2. Payment Method</h2>
+            <div class="form-group">
+                <select name="payment_method" class="form-control" id="paymentMethod" onchange="togglePaymentBox()" style="font-weight: bold;">
+                    <option value="COD">Cash on Delivery (COD)</option>
+                    <option value="Online">bKash / Nagad / Rocket</option>
+                </select>
+            </div>
+
+            <div id="onlinePaymentBox" style="display: none; padding: 25px; background: rgba(0,0,0,0.2); border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(198,167,94,0.2);">
+                <p style="font-size: 13px; color: var(--accent-color); margin-bottom: 20px; line-height: 1.6;">
+                    Please send money to our official Merchant Number: <br>
+                    <strong style="font-size: 18px; letter-spacing: 2px;">01740242123</strong>
+                </p>
+                <div class="form-group">
+                    <label class="form-label">Transaction ID (TrxID) <span style="color: #ff4d4d;">*</span></label>
+                    <input type="text" name="trx_id" id="trxIdInput" class="form-control" placeholder="E.g. 9XBS8D9...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Upload Payment Screenshot <span style="color: #ff4d4d;">*</span></label>
+                    <input type="file" name="payment_screenshot" id="paymentImageInput" class="form-control" accept="image/*" style="padding: 12px;">
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-place-order">Confirm Order <i class="fas fa-arrow-right" style="margin-left: 8px;"></i></button>
+        </form>
+    </div>
+
+    <!-- RIGHT: ORDER SUMMARY -->
+    <div class="panel liquid-glass">
+        <h2 class="sec-title"><i class="fas fa-shopping-bag"></i> Order Summary</h2>
+        
+        <div style="max-height: 300px; overflow-y: auto; margin-bottom: 25px; padding-right: 10px;">
+            {% for item in cart_items %}
+            <div class="item-row">
+                <img src="{{ url_for('static', filename='images/' + item.image) }}" alt="Product">
+                <div class="item-info">
+                    <div class="item-name">{{ item.name }}</div>
+                    <div class="item-meta">Size: {{ item.size }} | Qty: {{ item.quantity }}</div>
+                </div>
+                <div class="item-price">৳ {{ item.price * item.quantity }}</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="coupon-box">
+            <input type="text" id="couponCodeInput" placeholder="Enter Gift / Coupon Code" style="text-transform: uppercase;">
+            <button type="button" onclick="applyCoupon()">Apply</button>
+        </div>
+        
+        <div class="summary-row"><span>Subtotal:</span> <span id="subtotalVal">৳ {{ total_price }}</span></div>
+        <div class="summary-row"><span>Delivery Charge:</span> <span id="deliveryVal">৳ 80</span></div>
+        <div class="summary-row" id="discountRow" style="display: none; color: #2ecc71;"><span>Discount:</span> <span id="discountVal">- ৳ 0</span></div>
+        
+        <div class="summary-total"><span>Total Payable:</span> <span id="finalTotal">৳ {{ total_price + 80 }}</span></div>
+    </div>
+</div>
+
+<script>
+    let subtotal = {{ total_price }};
+    let currentDiscount = 0;
+    let currentDeliveryCost = 80; // Defaults to Dhaka City
+
+    // 🔥 Dynamic Delivery Calculation
+    document.getElementById('divisionSelect').addEventListener('change', function() {
+        let div = this.value;
+        if(div === 'Dhaka City') currentDeliveryCost = 80;
+        else if(div === 'Dhaka Sub-Urban') currentDeliveryCost = 100;
+        else currentDeliveryCost = 130;
+        
+        document.getElementById('deliveryVal').innerText = '৳ ' + currentDeliveryCost;
+        updateTotal();
+    });
+
+    function updateTotal() {
+        let total = (subtotal - currentDiscount) + currentDeliveryCost;
+        document.getElementById('finalTotal').innerText = '৳ ' + total;
+    }
+
+    // Payment Box Toggle & Validation
+    function togglePaymentBox() {
+        let method = document.getElementById('paymentMethod').value;
+        let onlineBox = document.getElementById('onlinePaymentBox');
+        if (method === 'Online') {
+            onlineBox.style.display = 'block'; onlineBox.style.animation = 'fadeInDown 0.4s ease';
+        } else {
+            onlineBox.style.display = 'none';
+            document.getElementById('trxIdInput').classList.remove('input-error');
+            document.getElementById('paymentImageInput').classList.remove('input-error');
+        }
+    }
+
+    document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+        if (document.getElementById('paymentMethod').value === 'Online') {
+            let trxInput = document.getElementById('trxIdInput');
+            let imgInput = document.getElementById('paymentImageInput');
+            let isValid = true;
+            if (trxInput.value.trim() === '') { trxInput.classList.add('input-error'); setTimeout(() => trxInput.classList.remove('input-error'), 500); isValid = false; }
+            if (imgInput.files.length === 0) { imgInput.classList.add('input-error'); setTimeout(() => imgInput.classList.remove('input-error'), 500); isValid = false; }
+            if (!isValid) {
+                e.preventDefault(); 
+                if(window.showGlobalToast) window.showGlobalToast("Please provide Transaction ID & screenshot.", "error");
+            }
+        }
+    });
+
+    // 🔥 PROPER COUPON CALCULATION
+    function applyCoupon() {
+        let code = document.getElementById('couponCodeInput').value.trim().toUpperCase();
+        if(!code) return;
+        
+        fetch('/api/apply-coupon', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({code: code, cart_total: subtotal})
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) {
+                currentDiscount = Math.floor(subtotal * (data.discount_percent / 100)); // Only applies to subtotal
+                document.getElementById('discountRow').style.display = 'flex';
+                document.getElementById('discountVal').innerText = '- ৳ ' + currentDiscount;
+                document.getElementById('applied_coupon_input').value = code;
+                
+                updateTotal();
+                if(window.showGlobalToast) window.showGlobalToast(`Coupon Applied! ${data.discount_percent}% OFF`, 'success');
+            } else {
+                if(window.showGlobalToast) window.showGlobalToast(data.message, 'error');
+            }
+        });
+    }
+</script>
+{% endblock %}

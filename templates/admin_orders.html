@@ -1,0 +1,376 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+    /* ============================ */
+    /* 🎛️ ADMIN LAYOUT & SIDEBAR    */
+    /* ============================ */
+    .admin-layout { display: flex; min-height: 100vh; background: var(--bg-color); }
+    
+    .admin-sidebar { 
+        width: 260px; background: var(--panel-color); border-right: 1px solid var(--border-color); 
+        position: fixed; height: 100vh; display: flex; flex-direction: column; 
+        padding: 30px 0; z-index: 100;
+    }
+    
+    .admin-main { flex: 1; margin-left: 260px; padding: 40px; max-width: 1200px; }
+
+    .sidebar-logo { font-family: var(--font-head); font-size: 28px; color: var(--text-color); text-align: center; margin-bottom: 50px; letter-spacing: 3px; font-weight: 600;}
+    .sidebar-logo span { color: var(--accent-color); }
+    
+    .sidebar-menu { display: flex; flex-direction: column; gap: 8px; padding: 0 20px; flex: 1;}
+    .sidebar-link { 
+        display: flex; align-items: center; gap: 15px; padding: 14px 20px; 
+        color: var(--muted-color); text-decoration: none; font-size: 12px; font-weight: 700; 
+        text-transform: uppercase; letter-spacing: 1px; border-radius: 8px; transition: 0.3s; 
+    }
+    .sidebar-link:hover, .sidebar-link.active { background: rgba(198,167,94,0.1); color: var(--accent-color); }
+    .sidebar-link i { font-size: 18px; width: 24px; text-align: center; }
+    
+    .sidebar-bottom { padding: 0 20px; margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 25px; }
+
+    /* 📊 START: ORDER ANALYTICS OVERVIEW */
+    .analytics-section { margin-bottom: 50px; }
+    .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
+    .dash-title { font-family: var(--font-head); font-size: 22px; color: var(--text-color); letter-spacing: 2px; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
+    
+    .time-filters { display: flex; background: var(--panel-color); padding: 5px; border-radius: 30px; border: 1px solid var(--border-color); }
+    .stat-tab { padding: 8px 20px; font-size: 11px; font-weight: 700; color: var(--muted-color); text-transform: uppercase; cursor: pointer; border-radius: 25px; transition: 0.3s; }
+    .stat-tab.active { background: var(--accent-color); color: #000; box-shadow: 0 4px 10px rgba(198,167,94,0.3); }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
+    .stat-card { background: var(--panel-color); padding: 25px 20px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 5px 20px rgba(0,0,0,0.2); position: relative; overflow: hidden; transition: 0.4s; opacity: 0; transform: translateY(20px); animation: fadeUpCard 0.5s cubic-bezier(0.2, 1, 0.3, 1) forwards; }
+    
+    .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.4); border-color: var(--accent-color); }
+    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
+    
+    .card-blue::before { background: #3498db; }
+    .card-yellow::before { background: #f1c40f; }
+    .card-green::before { background: #2ecc71; }
+    .card-red::before { background: #e74c3c; }
+    .card-gold::before { background: var(--accent-color); }
+
+    .stat-icon { position: absolute; top: 20px; right: 20px; font-size: 20px; color: rgba(255,255,255,0.05); transition: 0.3s; }
+    .stat-card:hover .stat-icon { color: var(--accent-color); transform: scale(1.1) rotate(10deg); }
+
+    .stat-label { font-size: 10px; color: var(--muted-color); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 8px; }
+    .stat-number { font-size: 26px; font-weight: 800; color: var(--text-color); font-family: var(--font-head); }
+    
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+    .delay-5 { animation-delay: 0.5s; }
+
+    @keyframes fadeUpCard { to { opacity: 1; transform: translateY(0); } }
+
+    /* 📦 START: ORDER LIST STYLES */
+    .section-title { font-size: 22px; font-family: var(--font-head); font-weight: 700; color: var(--text-color); margin-bottom: 5px; }
+    .section-sub { font-size: 11px; color: var(--muted-color); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 25px; }
+    
+    .filter-bar { background: var(--panel-color); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
+    .filter-pills { display: flex; gap: 10px; flex-wrap: wrap; }
+    .filter-pill { padding: 8px 15px; border-radius: 20px; font-size: 10px; font-weight: 700; text-transform: uppercase; border: 1px solid var(--border-color); color: var(--muted-color); transition: 0.3s; text-decoration: none; }
+    .filter-pill:hover, .filter-pill.active { background: var(--accent-color); color: #000; border-color: var(--accent-color); }
+    
+    .search-form { display: flex; gap: 10px; }
+    .search-input { background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-color); padding: 10px 15px; border-radius: 6px; outline: none; font-size: 12px; }
+    .search-btn { background: var(--accent-color); color: #000; border: none; padding: 10px 20px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
+    .search-btn:hover { background: #FFF; }
+
+    /* Premium Order Card */
+    .order-card { background: var(--panel-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+    .order-card-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px dashed var(--border-color); padding-bottom: 15px; margin-bottom: 20px; }
+    .order-id { font-family: var(--font-head); font-size: 18px; font-weight: 700; color: var(--accent-color); }
+    
+    .badge { padding: 5px 10px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-left: 10px; }
+    .badge.Pending { background: rgba(241, 196, 15, 0.1); color: #f1c40f; border: 1px solid #f1c40f; }
+    .badge.Confirmed { background: rgba(52, 152, 219, 0.1); color: #3498db; border: 1px solid #3498db; }
+    .badge.Shipped { background: rgba(155, 89, 182, 0.1); color: #9b59b6; border: 1px solid #9b59b6; }
+    .badge.Delivered { background: rgba(46, 204, 113, 0.1); color: #2ecc71; border: 1px solid #2ecc71; }
+    .badge.Cancelled { background: rgba(231, 76, 60, 0.1); color: #e74c3c; border: 1px solid #e74c3c; }
+
+    /* 🔥 GUEST BADGE ANIMATION */
+    .guest-badge {
+        background: rgba(255, 152, 0, 0.15);
+        color: #ff9800;
+        border: 1px solid rgba(255, 152, 0, 0.4);
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        animation: pulseGuest 2s infinite;
+        text-transform: uppercase;
+    }
+    @keyframes pulseGuest {
+        0% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.4); }
+        70% { box-shadow: 0 0 0 8px rgba(255, 152, 0, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0); }
+    }
+
+    .order-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 30px; }
+    
+    .info-title { font-size: 10px; color: var(--muted-color); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; margin-bottom: 15px; }
+    .info-line { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: var(--text-color); margin-bottom: 10px; }
+    .info-line i { color: var(--accent-color); margin-top: 3px; }
+
+    .item-row { display: flex; align-items: center; gap: 15px; background: var(--bg-color); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 10px; }
+    .item-img { width: 50px; height: 50px; border-radius: 6px; object-fit: cover; }
+    .item-details { flex: 1; }
+    .item-name { font-weight: 600; font-size: 13px; color: var(--text-color); }
+    .item-meta { font-size: 11px; color: var(--muted-color); }
+    .item-price { font-weight: 700; color: var(--accent-color); font-size: 13px; }
+
+    .order-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border-color); padding-top: 20px; margin-top: 20px; }
+    .total-payable { font-size: 10px; color: var(--muted-color); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+    .total-amount { font-family: var(--font-head); font-size: 24px; color: var(--text-color); }
+    
+    .update-form { display: flex; gap: 10px; }
+    .status-select { background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 10px 15px; border-radius: 6px; outline: none; font-size: 12px; cursor: pointer; }
+
+    /* 📱 MOBILE RESPONSIVE FIXES */
+    @media(max-width: 768px){ 
+        .order-grid { grid-template-columns: 1fr; } 
+        .admin-main { margin-left: 0; padding: 20px; } 
+        .admin-sidebar { display: none; } 
+        .order-card-header { flex-direction: column; align-items: flex-start; gap: 15px; }
+    }
+</style>
+
+<div class="admin-layout">
+    <!-- 🔥 SIDEBAR -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-logo">AIV<span>A</span>RO</div>
+        <nav class="sidebar-menu">
+            <a href="/admin" class="sidebar-link"><i class="fas fa-box"></i> Products</a>
+            <a href="/admin/orders" class="sidebar-link active"><i class="fas fa-shopping-bag"></i> Orders</a>
+            <a href="/admin/users" class="sidebar-link"><i class="fas fa-users"></i> Customers</a>
+            <a href="/admin/campaigns" class="sidebar-link"><i class="fas fa-ticket-alt"></i> Coupons</a>
+            <a href="/admin/banners" class="sidebar-link"><i class="fas fa-image"></i> Banners</a>
+        </nav>
+        <div class="sidebar-bottom">
+            <a href="/" class="sidebar-link" style="color: var(--muted-color);"><i class="fas fa-store"></i> Storefront</a>
+            <a href="/logout" class="sidebar-link" style="color: #ff4d4d;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </aside>
+
+    <!-- 📦 MAIN CONTENT -->
+    <main class="admin-main">
+        <!-- 📊 ANALYTICS DASHBOARD -->
+        <div class="analytics-section">
+            <div class="dashboard-header">
+                <h2 class="dash-title"><i class="fas fa-chart-line" style="color: var(--accent-color);"></i> Order Overview</h2>
+                
+                <div class="time-filters">
+                    <div class="stat-tab" id="tab-today" onclick="loadStats('today')">Today</div>
+                    <div class="stat-tab" id="tab-week" onclick="loadStats('week')">This Week</div>
+                    <div class="stat-tab active" id="tab-month" onclick="loadStats('month')">This Month</div>
+                    <div class="stat-tab" id="tab-all_time" onclick="loadStats('all_time')">All Time</div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card card-blue delay-1">
+                    <i class="fas fa-shopping-cart stat-icon"></i>
+                    <div class="stat-label">Total Orders</div>
+                    <div class="stat-number" id="stat-total">0</div>
+                </div>
+                
+                <div class="stat-card card-yellow delay-2">
+                    <i class="fas fa-clock stat-icon"></i>
+                    <div class="stat-label">Pending</div>
+                    <div class="stat-number" id="stat-pending">0</div>
+                </div>
+
+                <div class="stat-card card-green delay-3">
+                    <i class="fas fa-check-circle stat-icon"></i>
+                    <div class="stat-label">Delivered Success</div>
+                    <div class="stat-number" id="stat-delivered">0</div>
+                </div>
+
+                <div class="stat-card card-red delay-4">
+                    <i class="fas fa-times-circle stat-icon"></i>
+                    <div class="stat-label">Cancelled</div>
+                    <div class="stat-number" id="stat-cancelled">0</div>
+                </div>
+
+                <div class="stat-card card-gold delay-5">
+                    <i class="fas fa-wallet stat-icon"></i>
+                    <div class="stat-label">Total Revenue</div>
+                    <div class="stat-number"><span style="font-size: 16px; color: var(--accent-color); margin-right: 3px;">৳</span><span id="stat-revenue">0</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 📦 MANAGE ORDERS SECTION -->
+        <div class="section-title">Manage Orders</div>
+        <div class="section-sub">Track and update customer orders</div>
+
+        <div class="filter-bar">
+            <div class="filter-pills">
+                <a href="?status=All" class="filter-pill {% if current_status == 'All' %}active{% endif %}">All Orders ({{ counts['All'] }})</a>
+                <a href="?status=Pending" class="filter-pill {% if current_status == 'Pending' %}active{% endif %}">Pending ({{ counts['Pending'] }})</a>
+                <a href="?status=Confirmed" class="filter-pill {% if current_status == 'Confirmed' %}active{% endif %}">Confirmed ({{ counts['Confirmed'] }})</a>
+                <a href="?status=Shipped" class="filter-pill {% if current_status == 'Shipped' %}active{% endif %}">Shipped ({{ counts['Shipped'] }})</a>
+                <a href="?status=Delivered" class="filter-pill {% if current_status == 'Delivered' %}active{% endif %}">Delivered ({{ counts['Delivered'] }})</a>
+                <a href="?status=Cancelled" class="filter-pill {% if current_status == 'Cancelled' %}active{% endif %}">Cancelled ({{ counts['Cancelled'] }})</a>
+            </div>
+            
+            <form class="search-form" method="GET" action="/admin/orders">
+                <input type="text" name="search_query" class="search-input" placeholder="Search Name or Phone..." value="{{ search_query or '' }}">
+                <input type="date" name="filter_date" class="search-input" value="{{ current_filter or '' }}">
+                <input type="hidden" name="status" value="{{ current_status }}">
+                <button type="submit" class="search-btn">Search</button>
+            </form>
+        </div>
+
+        {% for order in orders %}
+        <div class="order-card reveal-up">
+            <div class="order-card-header">
+                <!-- 🔥 Order ID & Guest Badge Container -->
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div class="order-id">ORDER #{{ order.id }} <span class="badge {{ order.status }}">{{ order.status }}</span></div>
+                    
+                    {% if not order.user_id %}
+                    <div class="guest-badge" title="Customer ordered without an account">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 14px;"></i> GUEST ORDER - CALL TO CONFIRM
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div style="font-size: 12px; color: var(--muted-color); margin-top: 5px;"><i class="far fa-clock"></i> {{ order.date_ordered.strftime('%d %b, %Y - %I:%M %p') }}</div>
+            </div>
+
+            <div class="order-grid">
+                <!-- Left Column: Customer & Payment -->
+                <div>
+                    <div class="info-title">Customer Details</div>
+                    <div class="info-line"><i class="fas fa-user"></i> <strong>{{ order.customer_name }}</strong></div>
+                    <div class="info-line"><i class="fas fa-phone-alt"></i> {{ order.phone }}</div>
+                    <div class="info-line"><i class="fas fa-map-marker-alt"></i> {{ order.address }}</div>
+                    
+                    <div class="info-title" style="margin-top: 25px;">Payment Verification</div>
+                    {% if order.payment_method == 'COD' %}
+                        <div class="badge Pending" style="display:inline-block; margin-left:0; background:rgba(46, 204, 113, 0.1); color:#2ecc71; border-color:#2ecc71;">
+                            <i class="fas fa-money-bill-wave"></i> CASH ON DELIVERY
+                        </div>
+                        <div style="font-size:10px; color:var(--muted-color); margin-top:5px;">Collect cash upon delivery.</div>
+                    {% else %}
+                        <div class="badge Confirmed" style="display:inline-block; margin-left:0;">
+                            <i class="fas fa-credit-card"></i> ONLINE PAYMENT ({{ order.payment_gateway }})
+                        </div>
+                        <div style="font-size:12px; margin-top:8px;"><strong>Trx ID:</strong> <span style="color:var(--accent-color);">{{ order.trx_id }}</span></div>
+                        {% if order.payment_screenshot %}
+                            <a href="{{ url_for('static', filename='payment_proofs/' + order.payment_screenshot) }}" target="_blank" style="display:inline-block; margin-top:10px; font-size:11px; color:#3498db;"><i class="fas fa-image"></i> View Screenshot</a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+                <!-- Right Column: Items Ordered -->
+                <div>
+                    <div class="info-title">Items Ordered</div>
+                    {% for item in order.items %}
+                    <div class="item-row">
+                        {% if item.product_image %}
+                            <img src="{{ url_for('static', filename='images/' + item.product_image) }}" class="item-img">
+                        {% else %}
+                            <div class="item-img" style="background:var(--bg-color); display:flex; align-items:center; justify-content:center;"><i class="fas fa-image" style="color:var(--muted-color);"></i></div>
+                        {% endif %}
+                        <div class="item-details">
+                            <div class="item-name">{{ item.product_name }}</div>
+                            <div class="item-meta">SIZE: <strong>{{ item.product_size }}</strong> | QTY: <strong>{{ item.quantity }}</strong></div>
+                        </div>
+                        <div class="item-price">৳ {{ item.product_price }}</div>
+                    </div>
+                    {% endfor %}
+                    
+                    <div style="text-align: right; font-size: 12px; color: var(--muted-color); margin-top: 15px;">
+                        <div>Subtotal: <strong style="color:var(--text-color);">৳ {{ order.total_price - order.delivery_charge + order.discount_amount }}</strong></div>
+                        <div>Delivery Charge: <strong style="color:var(--text-color);">৳ {{ order.delivery_charge }}</strong></div>
+                        {% if order.discount_amount > 0 %}
+                        <div style="color:#2ecc71;">Discount: <strong>- ৳ {{ order.discount_amount }}</strong></div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="order-footer">
+                <div>
+                    <div class="total-payable">Total Payable</div>
+                    <div class="total-amount">৳ {{ order.total_price }}</div>
+                </div>
+                
+                <form action="/admin/update-order/{{ order.id }}" method="POST" class="update-form">
+                    <select name="status" class="status-select">
+                        <option value="Pending" {% if order.status == 'Pending' %}selected{% endif %}>PENDING</option>
+                        <option value="Confirmed" {% if order.status == 'Confirmed' %}selected{% endif %}>CONFIRMED</option>
+                        <option value="Shipped" {% if order.status == 'Shipped' %}selected{% endif %}>SHIPPED</option>
+                        <option value="Delivered" {% if order.status == 'Delivered' %}selected{% endif %}>DELIVERED</option>
+                        <option value="Cancelled" {% if order.status == 'Cancelled' %}selected{% endif %}>CANCELLED</option>
+                    </select>
+                    <button type="submit" class="search-btn" style="padding: 10px 15px;">Update Status</button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 50px; background: var(--panel-color); border-radius: 12px; border: 1px solid var(--border-color);">
+            <i class="fas fa-box-open" style="font-size: 40px; color: var(--muted-color); margin-bottom: 15px;"></i>
+            <h3 style="color: var(--text-color);">No Orders Found</h3>
+            <p style="color: var(--muted-color); font-size: 13px;">There are no orders matching your current filter.</p>
+        </div>
+        {% endfor %}
+    </main>
+</div>
+
+<!-- ⚙️ MAGIC NUMBER COUNTER ANIMATION SCRIPT -->
+<script>
+    const statsData = {{ stats | tojson }};
+
+    function loadStats(period) {
+        document.querySelectorAll('.stat-tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('tab-' + period).classList.add('active');
+        
+        const data = statsData[period];
+        
+        animateValue("stat-total", parseInt(document.getElementById('stat-total').innerText) || 0, data.total, 800);
+        animateValue("stat-pending", parseInt(document.getElementById('stat-pending').innerText) || 0, data.pending, 800);
+        animateValue("stat-delivered", parseInt(document.getElementById('stat-delivered').innerText) || 0, data.delivered, 800);
+        animateValue("stat-cancelled", parseInt(document.getElementById('stat-cancelled').innerText) || 0, data.cancelled, 800);
+        animateValue("stat-revenue", parseInt(document.getElementById('stat-revenue').innerText.replace(/,/g, '')) || 0, data.revenue, 1200, true);
+    }
+
+    function animateValue(id, start, end, duration, isCurrency=false) {
+        const obj = document.getElementById(id);
+        if(start === end) {
+            obj.innerHTML = isCurrency ? end.toLocaleString() : end;
+            return;
+        }
+        
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            const easeOutProgress = 1 - Math.pow(1 - progress, 3); 
+            const currentVal = Math.floor(easeOutProgress * (end - start) + start);
+            
+            obj.innerHTML = isCurrency ? currentVal.toLocaleString() : currentVal;
+            
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            } else {
+                obj.innerHTML = isCurrency ? end.toLocaleString() : end;
+            }
+        };
+        window.requestAnimationFrame(step);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        setTimeout(() => { loadStats('month'); }, 200); 
+    });
+</script>
+
+{% endblock %}

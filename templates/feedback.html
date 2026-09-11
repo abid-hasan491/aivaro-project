@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+    .feedback-wrapper {
+        position: relative; min-height: 85vh; display: flex; justify-content: center; align-items: center;
+        padding: 60px 20px; overflow: hidden; background: var(--bg-color);
+    }
+
+    .ambient-orb-1 {
+        position: absolute; top: 10%; left: 15%; width: 50vw; height: 50vw; max-width: 500px; max-height: 500px;
+        background: var(--accent-color); border-radius: 50%; filter: blur(140px); opacity: 0.12;
+        animation: floatOrb1 15s infinite alternate ease-in-out; pointer-events: none; z-index: 0;
+    }
+    .ambient-orb-2 {
+        position: absolute; bottom: -10%; right: 10%; width: 60vw; height: 60vw; max-width: 600px; max-height: 600px;
+        background: #ffffff; border-radius: 50%; filter: blur(150px); opacity: 0.05;
+        animation: floatOrb2 18s infinite alternate ease-in-out; pointer-events: none; z-index: 0;
+    }
+
+    .feedback-container {
+        width: 100%; max-width: 600px;
+        background: rgba(15, 15, 15, 0.45); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+        padding: 50px; position: relative; z-index: 1; text-align: center;
+        opacity: 0; transform: translateY(40px); animation: fadeUpCard 0.8s cubic-bezier(0.2, 1, 0.3, 1) forwards;
+    }
+    body.light-theme .feedback-container { background: rgba(255, 255, 255, 0.6); border-color: rgba(0,0,0,0.05); }
+
+    @keyframes fadeUpCard { to { opacity: 1; transform: translateY(0); } }
+
+    .fb-icon { font-size: 45px; color: var(--accent-color); margin-bottom: 20px; animation: floatIcon 3s infinite ease-in-out; }
+    @keyframes floatIcon { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+    .fb-title { font-family: var(--font-head); font-size: 32px; color: var(--text-color); margin-bottom: 10px; }
+    .fb-sub { font-size: 12px; color: var(--muted-color); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 40px; font-weight: 600; line-height: 1.6;}
+
+    .form-group { text-align: left; margin-bottom: 20px; }
+    .form-label { font-size: 10px; font-weight: 800; color: var(--muted-color); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; display: block; }
+    
+    .form-control {
+        width: 100%; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.08); color: var(--text-color);
+        padding: 16px 20px; border-radius: 8px; font-size: 13px; font-weight: 500; outline: none; transition: 0.3s; font-family: var(--font-body);
+    }
+    .form-control:focus { border-color: var(--accent-color); background: rgba(0,0,0,0.4); box-shadow: 0 0 15px rgba(198,167,94,0.1); }
+    body.light-theme .form-control { background: rgba(255,255,255,0.4); border-color: rgba(0,0,0,0.1); color: #000; }
+
+    .btn-submit {
+        width: 100%; background: var(--accent-color); color: #000; border: none; padding: 18px; border-radius: 30px;
+        font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: 0.4s;
+        box-shadow: 0 10px 25px rgba(198,167,94,0.2); margin-top: 10px;
+    }
+    .btn-submit:hover { background: #FFF; transform: translateY(-3px); box-shadow: 0 15px 35px rgba(198,167,94,0.4); }
+
+    @media (max-width: 768px) {
+        .feedback-wrapper { padding: 30px 15px; align-items: flex-start;}
+        .feedback-container { padding: 40px 20px; border-radius: 16px; margin-top: 20px; }
+        .fb-title { font-size: 26px; }
+    }
+</style>
+
+<div class="feedback-wrapper">
+    <div class="ambient-orb-1"></div>
+    <div class="ambient-orb-2"></div>
+
+    <div class="feedback-container">
+        <i class="fas fa-comment-dots fb-icon"></i>
+        <h1 class="fb-title">Your Voice Matters</h1>
+        <div class="fb-sub">Help us elevate the AIVARO experience. Share your thoughts and suggestions below.</div>
+
+        <form action="/feedback" method="POST">
+            <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" name="name" class="form-control" value="{% if current_user.is_authenticated %}{{ current_user.name }}{% endif %}" placeholder="e.g. Abid Hasan" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" name="email" class="form-control" value="{% if current_user.is_authenticated %}{{ current_user.email }}{% endif %}" placeholder="e.g. abid@example.com" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">How can we improve?</label>
+                <textarea name="message" class="form-control" rows="5" placeholder="Share your suggestions, feature requests, or any issues you faced..." required></textarea>
+            </div>
+            <button type="submit" class="btn-submit">Submit Feedback <i class="fas fa-paper-plane" style="margin-left: 5px;"></i></button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,677 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+    /* ============================ */
+    /* 💎 AMBIENT LUXURY BACKGROUND */
+    /* ============================ */
+    .page-wrapper { position: relative; min-height: 100vh; overflow: hidden; }
+
+    /* Floating Glowing Orbs */
+    .ambient-orb-1 { position: absolute; top: 5%; left: -10%; width: 50vw; height: 50vw; max-width: 600px; max-height: 600px; background: var(--accent-color); border-radius: 50%; filter: blur(120px); opacity: 0.08; animation: floatOrb1 15s infinite alternate ease-in-out; pointer-events: none; z-index: 0; }
+    .ambient-orb-2 { position: absolute; top: 40%; right: -5%; width: 60vw; height: 60vw; max-width: 700px; max-height: 700px; background: #ffffff; border-radius: 50%; filter: blur(150px); opacity: 0.03; animation: floatOrb2 18s infinite alternate ease-in-out; pointer-events: none; z-index: 0; }
+
+    @keyframes floatOrb1 { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(50px, 80px) scale(1.1); } }
+    @keyframes floatOrb2 { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(-50px, -80px) scale(1.15); } }
+
+    /* ============================ */
+    /* ✨ LIQUID GLASS BASE CLASS   */
+    /* ============================ */
+    .glass-panel { background: var(--glass-bg, rgba(15, 15, 15, 0.45)); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08)); box-shadow: var(--glass-shadow, 0 8px 32px 0 rgba(0, 0, 0, 0.3)); transform: translateZ(0); -webkit-transform: translateZ(0); will-change: transform, backdrop-filter, opacity; backface-visibility: hidden; }
+    body.light-theme .glass-panel { background: rgba(255, 255, 255, 0.6); border-color: rgba(0, 0, 0, 0.05); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05); }
+
+    @keyframes fadeUpCard { from { opacity: 0; transform: translateZ(0) translateY(40px); } to { opacity: 1; transform: translateZ(0) translateY(0); } }
+
+    /* ============================ */
+    /* 🛍️ PRODUCT PAGE STYLES      */
+    /* ============================ */
+    body { font-family: var(--font-body); }
+    .fade-in { animation: fadeIn 0.8s ease forwards; opacity: 0; position: relative; z-index: 1; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .prod-container { max-width: 1300px; margin: 0 auto; padding: 40px 4vw; display: grid; grid-template-columns: 1.3fr 1fr; gap: 70px; align-items: start; }
+    
+    /* GALLERY (Glass) */
+    .gallery-area { position: sticky; top: 100px; }
+    .main-img-box { width: 100%; aspect-ratio: 3/4; overflow: hidden; cursor: crosshair; margin-bottom: 15px; position: relative; border-radius: 16px; padding: 10px; }
+    .main-img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 8px; transition: transform 0.1s ease-out; }
+    .thumb-list { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 5px; }
+    .thumb { width: 70px; aspect-ratio: 3/4; object-fit: cover; cursor: pointer; opacity: 0.6; transition: 0.3s; border-radius: 8px; padding: 4px; }
+    .thumb.active, .thumb:hover { opacity: 1; border-color: var(--accent-color); transform: translateY(-3px); box-shadow: 0 5px 15px rgba(198,167,94,0.2); }
+
+    /* INFO AREA */
+    .info-area { padding-top: 10px; }
+    .bread-crumb { font-size: 11px; text-transform: uppercase; color: var(--muted-color); letter-spacing: 2px; margin-bottom: 20px; font-weight: 600; }
+    .prod-title { font-family: var(--font-head); font-size: 42px; line-height: 1.1; margin-bottom: 15px; font-weight: 500; color: var(--text-color); }
+    .price-box { font-size: 24px; font-weight: 600; margin-bottom: 35px; display: flex; align-items: center; gap: 15px; color: var(--accent-color); font-family: var(--font-head); }
+    .old-price { font-size: 16px; color: var(--muted-color); text-decoration: line-through; font-family: var(--font-body); font-weight: 400;}
+    .badge-off { font-size: 10px; background: var(--accent-color); color: #000; padding: 4px 8px; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; border-radius: 4px; font-family: var(--font-body);}
+
+    /* SIZE SELECTOR */
+    .size-wrap { margin-bottom: 30px; }
+    .size-head { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px; color: var(--text-color); }
+    .guide-link { text-decoration: underline; cursor: pointer; color: var(--muted-color); transition: 0.3s; }
+    .guide-link:hover { color: var(--accent-color); }
+    .size-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+    .size-opt { display: none; }
+    .size-lbl { width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: 600; transition: 0.3s; font-size: 13px; border-radius: 8px; color: var(--text-color); background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); }
+    body.light-theme .size-lbl { background: rgba(255,255,255,0.4); }
+    .size-lbl:hover { border-color: var(--accent-color); color: var(--accent-color); transform: translateY(-2px); }
+    .size-opt:checked + .size-lbl { background: var(--accent-color); color: #000; border-color: var(--accent-color); font-weight: 800; box-shadow: 0 5px 15px rgba(198,167,94,0.3); }
+
+    /* BUTTONS */
+    .action-btns { display: flex; gap: 15px; margin-bottom: 40px; margin-top: 20px; width: 100%; }
+    .btn-core { flex: 1; padding: 18px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: 0.4s ease; text-align: center; border-radius: 30px; border: none; }
+    
+    .btn-cart { background: rgba(255,255,255,0.05); color: var(--text-color); border: 1px solid var(--glass-border); backdrop-filter: blur(10px); }
+    body.light-theme .btn-cart { background: rgba(0,0,0,0.05); color: #000; border-color: rgba(0,0,0,0.1); }
+    .btn-cart:hover { background: rgba(255,255,255,0.1); border-color: var(--text-color); transform: translateY(-3px); }
+    body.light-theme .btn-cart:hover { background: rgba(0,0,0,0.1); border-color: #000; }
+    
+    .btn-buy { background: var(--accent-color); color: #000; box-shadow: 0 10px 25px rgba(198,167,94,0.2); }
+    .btn-buy:hover { background: #FFF; box-shadow: 0 15px 30px rgba(255,255,255,0.3); transform: translateY(-3px); }
+
+    /* ACCORDION (Glass) */
+    .accordion { border-radius: 16px; padding: 5px 20px; margin-top: 20px; }
+    .acc-item { border-bottom: 1px dashed var(--glass-border); }
+    .acc-item:last-child { border-bottom: none; }
+    .acc-head { padding: 20px 0; cursor: pointer; display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-color); }
+    .acc-body { display: none; padding-bottom: 25px; font-size: 13px; color: var(--muted-color); line-height: 1.8; }
+    .acc-item.open .acc-body { display: block; animation: slideDown 0.3s ease; }
+    .plus-icon { transition: 0.3s; font-size: 16px; color: var(--muted-color); }
+    .acc-item.open .plus-icon { transform: rotate(45deg); color: var(--accent-color); }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* 🔥 REVIEW SECTION */
+    .review-sec { padding: 80px 4vw; border-top: 1px solid var(--glass-border); position: relative; z-index: 1; }
+    .review-title { text-align: center; font-family: var(--font-head); font-size: 32px; color: var(--text-color); margin-bottom: 50px; }
+    .review-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; max-width: 1300px; margin: 0 auto; }
+    .review-card { padding: 30px; border-radius: 16px; opacity: 0; animation: fadeUpCard 0.6s cubic-bezier(0.2, 1, 0.3, 1) forwards; }
+    .review-card:hover { border-color: var(--accent-color); transform: translateY(-5px); }
+    .r-stars { color: var(--accent-color); font-size: 14px; margin-bottom: 15px; letter-spacing: 2px; }
+    .r-user { font-weight: 700; font-size: 14px; color: var(--text-color); margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
+    .r-verify { color: #25D366; font-size: 12px; }
+    .r-date { font-size: 11px; color: var(--muted-color); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+    .r-text { font-size: 13px; color: var(--muted-color); line-height: 1.7; font-style: italic; }
+
+    /* RELATED PRODUCTS */
+    .related-sec { padding: 80px 4vw; border-top: 1px solid var(--glass-border); position: relative; z-index: 1; }
+    .sec-title { text-align: center; font-family: var(--font-head); font-size: 32px; margin-bottom: 50px; font-weight: 500; letter-spacing: 1px; color: var(--text-color); }
+    .rel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 30px; max-width: 1300px; margin: 0 auto; }
+    .rel-card { text-decoration: none; color: inherit; display: block; transition: 0.4s; opacity: 0; animation: fadeUpCard 0.8s cubic-bezier(0.2, 1, 0.3, 1) forwards; }
+    .rel-card:hover { transform: translateY(-10px); }
+    .rel-img-box { overflow: hidden; margin-bottom: 15px; aspect-ratio: 3/4; border-radius: 12px; padding: 8px; transition: 0.4s; }
+    .rel-card:hover .rel-img-box { border-color: var(--accent-color); box-shadow: 0 15px 30px rgba(198,167,94,0.15); }
+    .rel-img { width: 100%; height: 100%; object-fit: cover; transition: 0.6s; border-radius: 6px; }
+    .rel-card:hover .rel-img { transform: scale(1.08); }
+    .rel-info { text-align: center; }
+    .rel-name { font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--text-color); }
+    .rel-price { font-weight: 700; font-family: var(--font-head); font-size: 16px; color: var(--accent-color); }
+
+    /* 🔥 MODAL & FORM STYLES (Glass) */
+    .modal-wrap { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+    .modal-cont { width: 90%; max-width: 550px; padding: 35px; max-height: 90vh; overflow-y: auto; border-radius: 20px; animation: scaleUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; color: var(--text-color); box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
+    @keyframes scaleUp { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    
+    .modal-cont::-webkit-scrollbar { display: none; }
+    .close-modal { position: absolute; top: 20px; right: 25px; font-size: 28px; cursor: pointer; color: var(--muted-color); transition: 0.3s; }
+    .close-modal:hover { color: var(--text-color); transform: rotate(90deg); }
+
+    .form-group { margin-bottom: 15px; }
+    .form-label { font-size: 10px; font-weight: 700; margin-bottom: 8px; display: block; color: var(--accent-color); text-transform: uppercase; letter-spacing: 1px; }
+    .inp-field, .form-select, .form-textarea { width: 100%; padding: 15px; border: 1px solid var(--glass-border); font-family: inherit; font-size: 13px; background: rgba(0,0,0,0.2); color: var(--text-color); border-radius: 8px; outline: none; transition: 0.3s; }
+    body.light-theme .inp-field, body.light-theme .form-select, body.light-theme .form-textarea { background: rgba(255,255,255,0.4); color: #000; }
+    .inp-field:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent-color); background: rgba(0,0,0,0.4); box-shadow: 0 0 15px rgba(198,167,94,0.1); }
+    
+    /* 🔥 GUEST PROMPT IN MODAL */
+    .guest-prompt { background: linear-gradient(135deg, rgba(198,167,94,0.1) 0%, rgba(0,0,0,0.2) 100%); border: 1px solid rgba(198,167,94,0.3); border-radius: 12px; padding: 25px 20px; text-align: center; position: relative; overflow: hidden; margin-bottom: 20px; }
+    body.light-theme .guest-prompt { background: linear-gradient(135deg, rgba(198,167,94,0.1) 0%, rgba(255,255,255,0.5) 100%); }
+    .guest-prompt::before { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(to right, transparent, rgba(198,167,94,0.1), transparent); transform: skewX(-25deg); animation: shinePrompt 5s infinite; }
+    .gp-icon { font-size: 28px; color: var(--accent-color); margin-bottom: 12px; filter: drop-shadow(0 0 10px rgba(198,167,94,0.3)); }
+    .gp-title { font-size: 16px; font-weight: bold; color: var(--text-color); margin-bottom: 8px; font-family: var(--font-head); letter-spacing: 1px; }
+    .gp-text { font-size: 11px; color: var(--muted-color); margin-bottom: 20px; line-height: 1.5; }
+    .gp-buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .btn-outline, .btn-fill { padding: 10px 20px; border-radius: 30px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.3s; text-decoration: none; display: flex; align-items: center; gap: 6px; justify-content: center; flex: 1; }
+    .btn-outline { border: 1px solid var(--accent-color); color: var(--accent-color); background: transparent; }
+    .btn-outline:hover { background: rgba(198,167,94,0.1); transform: translateY(-2px); }
+    .btn-fill { background: var(--accent-color); color: #000; border: none; box-shadow: 0 5px 15px rgba(198,167,94,0.2); }
+    .btn-fill:hover { background: #FFF; box-shadow: 0 10px 25px rgba(198,167,94,0.4); transform: translateY(-2px); }
+    
+    .divider { display: flex; align-items: center; text-align: center; margin: 25px 0; color: var(--muted-color); font-size: 10px; font-weight: 700; letter-spacing: 2px; }
+    .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px dashed rgba(255,255,255,0.1); }
+    .divider:not(:empty)::before { margin-right: 1em; }
+    .divider:not(:empty)::after { margin-left: 1em; }
+
+    /* 🔥 COUPON BOX IN MODAL */
+    .modal-coupon-box { display: flex; margin-bottom: 15px; }
+    .modal-coupon-box input { flex: 1; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); color: var(--text-color); padding: 12px 15px; border-radius: 8px 0 0 8px; font-size: 11px; outline: none; border-right: none; font-family: var(--font-body);}
+    .modal-coupon-box button { background: var(--accent-color); color: #000; border: none; padding: 0 20px; border-radius: 0 8px 8px 0; font-weight: 800; font-size: 10px; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+    .modal-coupon-box button:hover { background: #FFF; }
+    body.light-theme .modal-coupon-box input { background: rgba(255,255,255,0.4); border-color: rgba(0,0,0,0.1); color: #000; border-right: none; }
+
+    /* ERROR ANIMATION */
+    @keyframes shakeError { 0% { transform: translateX(0); } 25% { transform: translateX(-8px); } 50% { transform: translateX(8px); } 75% { transform: translateX(-8px); } 100% { transform: translateX(0); } }
+    .input-error { animation: shakeError 0.4s ease-in-out; border-color: #ff4d4d !important; background: rgba(255, 77, 77, 0.05) !important; box-shadow: 0 0 12px rgba(255, 77, 77, 0.3) !important; }
+
+    .qty-wrapper { display: flex; border: 1px solid var(--glass-border); border-radius: 8px; overflow: hidden; height: 45px; background: rgba(0,0,0,0.2); }
+    body.light-theme .qty-wrapper { background: rgba(255,255,255,0.4); }
+    .qty-btn { background: transparent; color: var(--text-color); border: none; width: 40px; cursor: pointer; font-size: 18px; transition: 0.3s; }
+    .qty-btn:hover { background: var(--accent-color); color: #000; }
+    .qty-input { width: 50px; text-align: center; background: transparent; color: var(--text-color); border: none; outline: none; font-weight: bold; font-family: var(--font-body); font-size: 14px;}
+    .qty-input::-webkit-outer-spin-button, .qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+    /* 📱 MOBILE RESPONSIVE */
+    @media (max-width: 900px) {
+        .glass-panel { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+        .ambient-orb-1, .ambient-orb-2 { display: none; } 
+        
+        .prod-container { grid-template-columns: 1fr; gap: 30px; padding: 20px 15px; }
+        .gallery-area { position: relative; top: 0; }
+        .main-img-box { aspect-ratio: 3/4; margin-bottom: 15px; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; padding: 5px; border-radius: 12px; }
+        .main-img-box img { scroll-snap-align: center; min-width: 100%; border-radius: 8px; }
+        .thumb-list { display: none; } 
+        
+        .info-area { padding: 0 5px; }
+        .prod-title { font-size: 32px; }
+        .action-btns { flex-direction: row; gap: 10px; margin-bottom: 30px; }
+        .btn-core { padding: 15px 10px; font-size: 10px; }
+        
+        .review-sec { padding: 60px 15px; }
+        .related-sec { padding: 50px 15px; }
+        .rel-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        
+        .modal-cont { padding: 25px 15px; border-radius: 16px; width: 95%; }
+        .gp-buttons { flex-direction: column; }
+    }
+</style>
+
+<div class="page-wrapper">
+    <!-- Ambient Orbs -->
+    <div class="ambient-orb-1"></div>
+    <div class="ambient-orb-2"></div>
+
+    <div class="prod-container fade-in">
+        <div class="gallery-area">
+            <div class="main-img-box glass-panel" id="zoomBox" onmousemove="zoom(event)" onmouseleave="noZoom()">
+                {% if product.images %}
+                    <img id="heroImg" src="{{ url_for('static', filename='images/' + product.images[0].image_url) }}" class="main-img">
+                {% else %}
+                    <div style="height:100%; display:flex; align-items:center; justify-content:center; color:var(--muted-color);">No Image</div>
+                {% endif %}
+            </div>
+            <div class="thumb-list">
+                {% for img in product.images %}
+                <img src="{{ url_for('static', filename='images/' + img.image_url) }}" class="thumb glass-panel {% if loop.first %}active{% endif %}" onclick="changeImg(this)">
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="info-area">
+            <div class="bread-crumb">Home / Collection / <span>{{ product.category }}</span></div>
+            <h1 class="prod-title">{{ product.name }}</h1>
+            <div class="price-box">
+                <span>৳ {{ product.final_price }}</span>
+                {% if product.discount > 0 %}<span class="old-price">৳ {{ product.price }}</span><span class="badge-off">-{{ product.discount }}%</span>{% endif %}
+            </div>
+
+            <div class="size-wrap">
+                <div class="size-head">
+                    <span>Select Size</span> 
+                    <span class="guide-link" onclick="toggleModal('sizeModal')"><i class="fas fa-ruler-horizontal"></i> Size Guide</span>
+                </div>
+                <div class="size-grid">
+                    {% if product.sizes %}
+                        {% for size in product.sizes.split(',') %}
+                        <label>
+                            <input type="radio" name="size" value="{{ size.strip() }}" class="size-opt">
+                            <span class="size-lbl">{{ size.strip() }}</span>
+                        </label>
+                        {% endfor %}
+                    {% else %}
+                        <div style="color:#ff4d4d; font-size:12px; font-weight: 700; text-transform: uppercase;">Out of Stock</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="action-btns">
+                <button class="btn-core btn-cart glass-panel" onclick="addCart()"><i class="fas fa-shopping-bag" style="margin-right: 5px;"></i> Add to Cart</button>
+                <button class="btn-core btn-buy" onclick="openCheckout()">Buy Now <i class="fas fa-arrow-right" style="margin-left: 5px;"></i></button>
+            </div>
+
+            <div class="accordion glass-panel">
+                <div class="acc-item open" onclick="toggleAcc(this)">
+                    <div class="acc-head">Description <span class="plus-icon">+</span></div>
+                    <div class="acc-body">{{ product.description }}</div>
+                </div>
+                <div class="acc-item" onclick="toggleAcc(this)">
+                    <div class="acc-head">Delivery & Returns <span class="plus-icon">+</span></div>
+                    <div class="acc-body">Expected Delivery: Inside Dhaka 1-2 Days and Outside Dhaka 3-5 Days. Return available within 3 days after purchase.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔥 Glass Reviews -->
+    <div class="review-sec">
+        <h2 class="review-title">Customer Reviews</h2>
+        <div class="review-grid">
+            {% if reviews %}
+                {% for review in reviews %}
+                <div class="review-card glass-panel" style="animation-delay: {{ loop.index * 0.1 }}s;">
+                    <div class="r-stars">
+                        {% for i in range(review.rating) %}★{% endfor %}
+                        {% for i in range(5 - review.rating) %}<span style="color:var(--glass-border);">★</span>{% endfor %}
+                    </div>
+                    <div class="r-user">{{ review.customer_name or (review.user.name if review.user else 'Guest User') }} <i class="fas fa-check-circle r-verify" title="Verified Buyer"></i></div>
+                    <div class="r-date">{{ review.created_at.strftime('%B %d, %Y') }}</div>
+                    <div class="r-text">"{{ review.comment }}"</div>
+                    {% if review.image_url %}
+                    <img src="{{ url_for('static', filename='review_images/' + review.image_url) }}" style="width:100%; max-height:180px; object-fit:cover; border-radius:8px; margin-top:15px; border:1px solid rgba(255,255,255,0.1);">
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="glass-panel" style="grid-column: 1 / -1; text-align: center; color: var(--muted-color); padding: 50px 20px; border-radius: 16px;">
+                    <i class="far fa-comment-dots" style="font-size: 50px; margin-bottom: 20px; opacity: 0.5;"></i>
+                    <p style="font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">No reviews yet. Be the first to review after purchase!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 🔥 Glass Related Products -->
+    <div class="related-sec">
+        <h2 class="sec-title">You May Also Like</h2>
+        <div class="rel-grid">
+            {% for rel in related_products %}
+            <a href="/product/{{ rel.id }}" class="rel-card" style="animation-delay: {{ loop.index * 0.15 }}s;">
+                <div class="rel-img-box glass-panel"><img src="{{ url_for('static', filename='images/' + rel.images[0].image_url) }}" class="rel-img"></div>
+                <div class="rel-info"><div class="rel-name">{{ rel.name }}</div><div class="rel-price">৳ {{ rel.final_price }}</div></div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- ============================================== -->
+<!-- 🔥 MODALS (Size Guide & Express Checkout)      -->
+<!-- ============================================== -->
+
+<!-- Size Guide Modal -->
+<div id="sizeModal" class="modal-wrap">
+    <div class="modal-cont glass-panel">
+        <span class="close-modal" onclick="toggleModal('sizeModal')">&times;</span>
+        <h3 style="text-align:center; font-family: var(--font-head); margin-bottom: 25px; font-size: 28px; color: var(--text-color);">Size Guide</h3>
+        <div style="overflow-x:auto;">
+            <table class="size-table" style="width: 100%; border-collapse: collapse; text-align: center;">
+                <thead>
+                    <tr style="background: rgba(0,0,0,0.3);">
+                        <th style="padding: 15px; color: var(--accent-color); border-bottom: 1px solid var(--glass-border);">Size</th>
+                        {% set cat_lower = product.category.lower() %}
+                        {% if 'pant' in cat_lower or 'trouser' in cat_lower %}
+                            <th style="padding: 15px; color: var(--accent-color); border-bottom: 1px solid var(--glass-border);">Waist</th>
+                            <th style="padding: 15px; color: var(--accent-color); border-bottom: 1px solid var(--glass-border);">Length</th>
+                        {% else %}
+                            <th style="padding: 15px; color: var(--accent-color); border-bottom: 1px solid var(--glass-border);">Chest</th>
+                            <th style="padding: 15px; color: var(--accent-color); border-bottom: 1px solid var(--glass-border);">Length</th>
+                            <th style="padding: 15px; color: var(--accent-color); border-bottom: 1px solid var(--glass-border);">Sleeve</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set chart = product.get_size_chart() %}
+                    {% for size in ['M', 'L', 'XL', 'XXL'] %}
+                        {% if chart.get(size) %}
+                        <tr>
+                            <td style="padding: 15px; border-bottom: 1px solid var(--glass-border); font-weight:700; color:var(--accent-color);">{{ size }}</td>
+                            {% if 'pant' in cat_lower or 'trouser' in cat_lower %}
+                                <td style="padding: 15px; border-bottom: 1px solid var(--glass-border);">{{ chart[size].get('waist') or chart[size].get('chest') or '-' }}</td>
+                                <td style="padding: 15px; border-bottom: 1px solid var(--glass-border);">{{ chart[size]['length'] or '-' }}</td>
+                            {% else %}
+                                <td style="padding: 15px; border-bottom: 1px solid var(--glass-border);">{{ chart[size]['chest'] or '-' }}</td>
+                                <td style="padding: 15px; border-bottom: 1px solid var(--glass-border);">{{ chart[size]['length'] or '-' }}</td>
+                                <td style="padding: 15px; border-bottom: 1px solid var(--glass-border);">{{ chart[size]['sleeve'] or '-' }}</td>
+                            {% endif %}
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- 🔥 EXPRESS CHECKOUT MODAL -->
+<div id="checkoutModal" class="modal-wrap">
+    <div class="modal-cont glass-panel">
+        <span class="close-modal" onclick="toggleModal('checkoutModal')">&times;</span>
+        <h3 style="font-family: var(--font-head); margin-bottom: 25px; font-size: 28px; color: var(--text-color); text-align: center; border-bottom: 1px dashed var(--glass-border); padding-bottom: 15px;">Express Checkout</h3>
+        
+        <!-- 🔥 GUEST PROMPT IN MODAL -->
+        {% if not current_user.is_authenticated %}
+        <div class="guest-prompt">
+            <i class="fas fa-crown gp-icon"></i>
+            <h3 class="gp-title">Unlock Premium Benefits</h3>
+            <p class="gp-text">Log in or sign up to securely track your orders and access exclusive member-only discounts.</p>
+            <div class="gp-buttons">
+                <a href="/login?next=checkout" class="btn-fill"><i class="fas fa-sign-in-alt"></i> Login Now</a>
+                <a href="/signup" class="btn-outline"><i class="fas fa-user-plus"></i> Create Account</a>
+            </div>
+        </div>
+        <div class="divider">OR CONTINUE AS GUEST</div>
+        {% endif %}
+
+        <form action="/buy-now" method="POST" id="checkoutForm" enctype="multipart/form-data" onsubmit="return validateExpressPayment(event)" novalidate>
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+            <input type="hidden" name="size" id="modalSizeInput">
+            <input type="hidden" name="applied_coupon" id="hiddenCouponInput">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); padding-bottom: 20px; margin-bottom: 20px;">
+                <label class="form-label" style="margin-bottom: 0;">Quantity</label>
+                <div class="qty-wrapper">
+                    <button type="button" class="qty-btn" onclick="updateQty(-1)">-</button>
+                    <input type="number" name="quantity" id="buyNowQty" value="1" min="1" max="10" readonly class="qty-input">
+                    <button type="button" class="qty-btn" onclick="updateQty(1)">+</button>
+                </div>
+            </div>
+
+            <div class="form-group"><label class="form-label">Full Name</label><input type="text" name="name" class="inp-field" required value="{{ current_user.name if current_user.is_authenticated else '' }}"></div>
+            <div class="form-group"><label class="form-label">Phone</label><input type="tel" name="phone" class="inp-field" required value="{{ current_user.phone if current_user.is_authenticated else '' }}"></div>
+
+            <!-- 🔥 DYNAMIC DIVISION SELECTION -->
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                <div class="form-group">
+                    <label class="form-label">Division / Region</label>
+                    <select name="division" id="modalDivSelect" class="form-select" required onchange="loadModalDistricts()">
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">District / Area</label>
+                    <select name="district" id="modalDistSelect" class="form-select" required onchange="calculateModalTotal()">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group"><label class="form-label">Address</label><textarea name="address" class="form-textarea" rows="2" required placeholder="House No, Area, Road...">{% if current_user.is_authenticated %}{{ current_user.address or '' }}{% endif %}</textarea></div>
+
+            <!-- 🔥 COUPON BOX -->
+            <div style="margin-top:25px; border-top:1px dashed var(--glass-border); padding-top:20px;">
+                <label class="form-label">Have a Coupon?</label>
+                <div class="modal-coupon-box">
+                    <input type="text" id="couponCodeUI" placeholder="Enter Gift / Coupon Code" style="text-transform: uppercase;">
+                    <button type="button" onclick="applyCoupon()">Apply</button>
+                </div>
+                <div id="couponMsg" style="font-size: 11px; margin-top: 8px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;"></div>
+            </div>
+
+            <div style="margin-top:25px; border-top:1px dashed var(--glass-border); padding-top:20px;">
+                <label class="form-label" style="margin-bottom:12px;">Payment Method</label>
+                <div style="display:flex; gap:10px; margin-bottom:15px;">
+                    <label style="flex:1; border:1px solid var(--glass-border); background:rgba(0,0,0,0.2); padding:12px; border-radius:8px; text-align:center; font-size:13px; font-weight:700; cursor:pointer; transition:0.3s;"><input type="radio" name="payment_method" value="COD" checked onclick="toggleModalPayment('COD')" style="accent-color: var(--accent-color);"> COD</label>
+                    <label style="flex:1; border:1px solid var(--glass-border); background:rgba(0,0,0,0.2); padding:12px; border-radius:8px; text-align:center; font-size:13px; font-weight:700; cursor:pointer; transition:0.3s;"><input type="radio" name="payment_method" value="Online" onclick="toggleModalPayment('Online')" style="accent-color: var(--accent-color);"> Online Pay</label>
+                </div>
+                
+                <!-- 🔥 ONLINE PAYMENT BOX & VALIDATION TARGETS -->
+                <div id="modalOnlinePay" style="display:none; background:rgba(0,0,0,0.3); padding:20px; border:1px solid rgba(198,167,94,0.3); border-radius:12px; margin-bottom:20px;">
+                    <p style="font-size:12px; color:var(--accent-color); font-weight:700; margin-bottom: 20px; line-height: 1.5;">Please send money to our official Merchant Number:<br><strong style="font-size: 16px; letter-spacing: 1px;">01740242123</strong></p>
+                    
+                    <label class="form-label">Transaction ID (TrxID) <span style="color: #ff4d4d;">*</span></label>
+                    <input type="text" name="trx_id" id="expressTrxId" placeholder="e.g. 9X87KJHF" class="inp-field" style="margin-bottom: 15px;">
+                    
+                    <label class="form-label">Payment Screenshot <span style="color: #ff4d4d;">*</span></label>
+                    <input type="file" name="payment_screenshot" id="expressScreenshot" class="inp-field" accept="image/*" style="padding:12px; cursor: pointer;">
+                </div>
+            </div>
+            
+            <!-- ORDER SUMMARY -->
+            <div style="background:rgba(0,0,0,0.3); padding:20px; border-radius:12px; margin-bottom:20px; border:1px solid var(--glass-border);">
+                <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:8px; color: var(--muted-color); font-weight:600;"><span>Subtotal</span><span id="modalPriceDisplay" style="color:var(--text-color);">৳ {{ product.final_price }}</span></div>
+                <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:8px; color: var(--muted-color); font-weight:600;"><span>Delivery Charge</span><span id="deliveryCost" style="color:var(--text-color);">৳ 80</span></div>
+                
+                <div id="discountRow" style="display:none; justify-content:space-between; font-size:13px; margin-bottom:8px; color: #2ecc71; font-weight:600;">
+                    <span>Discount (<span id="appliedCouponName"></span>)</span><span id="discountAmount">- ৳ 0</span>
+                </div>
+                
+                <div style="display:flex; justify-content:space-between; font-weight:800; font-size:18px; border-top:1px dashed var(--glass-border); padding-top:15px; margin-top:10px; color:var(--accent-color); font-family: var(--font-head);">
+                    <span>Total Payable</span><span id="grandTotal">৳ {{ product.final_price + 80 }}</span>
+                </div>
+            </div>
+
+            <!-- 🔥 Custom Terms Checkbox -->
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px; text-align: center;">
+                <input type="checkbox" id="buyNowTerms" name="terms" style="accent-color: var(--accent-color); width: 15px; height: 15px; cursor: pointer;">
+                <label for="buyNowTerms" style="font-size: 11px; color: var(--muted-color); cursor: pointer; user-select: none;">
+                    I agree to Aivaro's <a href="/terms" target="_blank" style="color: var(--accent-color); font-weight: 700; text-decoration: none;">Terms & Policy</a>
+                </label>
+            </div>
+            
+            <div id="buyNowError" style="display: none; color: #ff4d4d; font-size: 11px; text-align: center; margin-bottom: 15px; font-weight: 600; animation: fadeIn 0.3s;">
+                <i class="fas fa-exclamation-circle"></i> Please agree to the terms to proceed.
+            </div>
+
+            <button type="submit" class="btn-core btn-buy" style="width:100%; border-radius: 12px; padding: 20px; font-size: 13px;">Confirm Secure Order</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    let basePrice = {{ product.final_price }};
+    let currentDeliveryCost = 80; // Defaults to Dhaka City
+    let currentDiscount = 0;
+
+    function zoom(e) { if(window.innerWidth<900) return; const box=e.currentTarget; const img=box.querySelector('img'); const x=e.offsetX/box.offsetWidth*100; const y=e.offsetY/box.offsetHeight*100; img.style.transformOrigin=`${x}% ${y}%`; img.style.transform="scale(1.8)"; }
+    function noZoom() { document.getElementById('heroImg').style.transform="scale(1)"; }
+    function changeImg(el) { document.getElementById('heroImg').src=el.src; document.querySelectorAll('.thumb').forEach(t=>t.classList.remove('active')); el.classList.add('active'); }
+    function toggleAcc(el) { document.querySelectorAll('.acc-item').forEach(i=>{ if(i!==el) i.classList.remove('open'); }); el.classList.toggle('open'); }
+    
+    function toggleModal(id) { 
+        const m = document.getElementById(id); 
+        if(m) {
+            if (m.style.display === 'flex') { m.style.display = 'none'; document.body.style.overflow = 'auto'; } 
+            else { m.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+        }
+    }
+
+    document.querySelectorAll('.modal-wrap').forEach(modal => {
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) { this.style.display = 'none'; document.body.style.overflow = 'auto'; }
+        });
+    });
+
+    function getSize() { 
+        const s = document.querySelector('input[name="size"]:checked'); 
+        if(!s) { 
+            if(window.showGlobalToast) window.showGlobalToast("Please Select A Size First", "error"); 
+            else alert("Please Select A Size");
+            return null; 
+        } 
+        return s.value; 
+    }
+
+    function addCart() { 
+        const s = getSize(); if(!s) return; 
+        fetch('/api/add-to-cart', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({product_id:{{product.id}}, size:s})
+        })
+        .then(r => r.json())
+        .then(d => { 
+            if(d.status === 'success') {
+                if(window.updateGlobalCartCount) window.updateGlobalCartCount(d.total_items);
+                if(window.showGlobalToast) window.showGlobalToast("Added to Cart Successfully!", "success");
+            }
+        }); 
+    }
+    
+    // 🔥 DYNAMIC REGIONS (UPDATED FOR 80, 100, 130 DELIVERY)
+    document.addEventListener('DOMContentLoaded', function() {
+        const bdData = {
+            "Dhaka City": ["Mirpur", "Gulshan", "Uttara", "Dhanmondi", "Mohammadpur", "Badda", "Khilgaon", "Motijheel", "Jatrabari", "Rampura"],
+            "Dhaka Sub-Urban": ["Savar", "Keraniganj", "Dhamrai", "Nawabganj", "Dohar", "Gazipur", "Narayanganj"],
+            "Chittagong": ["Bandarban", "Brahmanbaria", "Chandpur", "Chattogram", "Cumilla", "Cox's Bazar", "Feni", "Khagrachhari", "Lakshmipur", "Noakhali", "Rangamati"],
+            "Rajshahi": ["Bogura", "Chapainawabganj", "Joypurhat", "Naogaon", "Natore", "Pabna", "Rajshahi", "Sirajganj"],
+            "Khulna": ["Bagerhat", "Chuadanga", "Jashore", "Jhenaidah", "Khulna", "Kushtia", "Magura", "Meherpur", "Narail", "Satkhira"],
+            "Barisal": ["Barguna", "Barishal", "Bhola", "Jhalokathi", "Patuakhali", "Pirojpur"],
+            "Sylhet": ["Habiganj", "Moulvibazar", "Sunamganj", "Sylhet"],
+            "Rangpur": ["Dinajpur", "Gaibandha", "Kurigram", "Lalmonirhat", "Nilphamari", "Panchagarh", "Rangpur", "Thakurgaon"],
+            "Mymensingh": ["Jamalpur", "Mymensingh", "Netrokona", "Sherpur"]
+        };
+
+        const mDivSelect = document.getElementById('modalDivSelect');
+        if(mDivSelect) {
+            Object.keys(bdData).forEach(div => { 
+                let opt=document.createElement('option'); 
+                opt.value=div; 
+                // Add price hints in dropdown
+                let priceText = div === 'Dhaka City' ? ' (৳ 80)' : (div === 'Dhaka Sub-Urban' ? ' (৳ 100)' : ' (৳ 130)');
+                opt.innerHTML = div + priceText; 
+                mDivSelect.appendChild(opt); 
+            });
+        }
+        
+        window.loadModalDistricts = function() { 
+            const mDistSelect = document.getElementById('modalDistSelect');
+            const selDiv = mDivSelect.value; 
+            mDistSelect.innerHTML = '<option value="">Select Area</option>'; 
+            if(selDiv && bdData[selDiv]) { bdData[selDiv].forEach(d => { let opt=document.createElement('option'); opt.value=d; opt.innerHTML=d; mDistSelect.appendChild(opt); }); } 
+            calculateModalTotal(); 
+        };
+
+        const buyNowTerms = document.getElementById('buyNowTerms');
+        const buyNowError = document.getElementById('buyNowError');
+        if(buyNowTerms && buyNowError) {
+            buyNowTerms.addEventListener('change', function() { if(this.checked) { buyNowError.style.display = 'none'; } });
+        }
+    });
+
+    function openCheckout() { 
+        const s = getSize(); if(!s) return; 
+        document.getElementById('modalSizeInput').value = s; 
+        document.getElementById('buyNowQty').value = 1;
+        removeCoupon(); 
+        toggleModal('checkoutModal'); 
+        
+        // Initial setup for default Dhaka City
+        document.getElementById('deliveryCost').innerText = '৳ 80'; 
+        calculateModalTotal(); 
+    }
+    
+    function toggleModalPayment(method) { document.getElementById('modalOnlinePay').style.display = (method === 'Online') ? 'block' : 'none'; }
+
+    function validateExpressPayment(e) {
+        const form = document.getElementById('checkoutForm');
+        const termsChecked = document.getElementById('buyNowTerms').checked;
+        const errorMsg = document.getElementById('buyNowError');
+        let isFormValid = true;
+
+        const requiredFields = form.querySelectorAll('[required]');
+        requiredFields.forEach(field => {
+            if(!field.value.trim() && field.type !== 'checkbox') {
+                isFormValid = false; field.style.borderColor = '#ff4d4d';
+            } else { field.style.borderColor = 'var(--glass-border)'; }
+        });
+
+        if (!termsChecked) { e.preventDefault(); errorMsg.style.display = 'block'; return false; } 
+        else { errorMsg.style.display = 'none'; }
+
+        if (!isFormValid) {
+            e.preventDefault();
+            if(window.showGlobalToast) window.showGlobalToast("Please fill in all the required details.", "error");
+            return false;
+        }
+
+        const methodInputs = document.querySelectorAll('#checkoutModal input[name="payment_method"]');
+        let method = 'COD';
+        for (const input of methodInputs) { if (input.checked) { method = input.value; break; } }
+
+        if (method === 'Online') {
+            const trxIdEl = document.getElementById('expressTrxId');
+            const screenshotEl = document.getElementById('expressScreenshot');
+            const trxId = trxIdEl.value.trim();
+            const screenshot = screenshotEl.files.length;
+            
+            if (!trxId || screenshot === 0) {
+                e.preventDefault(); 
+                if(!trxId) { trxIdEl.classList.add('input-error'); setTimeout(() => trxIdEl.classList.remove('input-error'), 500); }
+                if(screenshot === 0) { screenshotEl.classList.add('input-error'); setTimeout(() => screenshotEl.classList.remove('input-error'), 500); }
+                if(window.showGlobalToast) window.showGlobalToast("Please provide Trx ID & Screenshot", "error"); 
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function updateQty(change) {
+        let input = document.getElementById('buyNowQty');
+        let currentVal = parseInt(input.value);
+        let newVal = currentVal + change;
+        if (newVal >= 1 && newVal <= 10) { 
+            input.value = newVal;
+            removeCoupon(); 
+            calculateModalTotal();
+        }
+    }
+
+    // 🔥 DELIVERY CHARGE CALCULATION FIX (80 / 100 / 130)
+    function calculateModalTotal() { 
+        const mDivSelect = document.getElementById('modalDivSelect');
+        let div = mDivSelect ? mDivSelect.value : "Dhaka City"; 
+        
+        if (div === 'Dhaka City') currentDeliveryCost = 80;
+        else if (div === 'Dhaka Sub-Urban') currentDeliveryCost = 100;
+        else currentDeliveryCost = 130;
+        
+        let qty = parseInt(document.getElementById('buyNowQty').value);
+        let subTotal = basePrice * qty; 
+        
+        document.getElementById('modalPriceDisplay').innerText = '৳ ' + subTotal; 
+        document.getElementById('deliveryCost').innerText = '৳ ' + currentDeliveryCost; 
+        
+        // Apply discount only on subtotal
+        let finalTotal = (subTotal - currentDiscount) + currentDeliveryCost;
+        document.getElementById('grandTotal').innerText = '৳ ' + finalTotal; 
+    }
+
+    // 🔥 APPLY COUPON ON EXPRESS (Only on Subtotal)
+    function applyCoupon() {
+        const code = document.getElementById('couponCodeUI').value.trim().toUpperCase();
+        const msgBox = document.getElementById('couponMsg');
+        let qty = parseInt(document.getElementById('buyNowQty').value);
+        let currentSubTotal = basePrice * qty;
+
+        if (!code) { msgBox.innerText = "Please enter a code."; msgBox.style.color = "#ff4d4d"; return; }
+
+        fetch('/api/apply-coupon', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ code: code, cart_total: currentSubTotal }) })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                msgBox.innerText = `Success! ${data.discount_percent}% OFF applied.`; msgBox.style.color = "#2ecc71";
+                // Discount is applied to Subtotal ONLY
+                currentDiscount = Math.floor(currentSubTotal * (data.discount_percent / 100));
+                document.getElementById('hiddenCouponInput').value = code;
+                document.getElementById('discountRow').style.display = 'flex';
+                document.getElementById('appliedCouponName').innerText = code;
+                document.getElementById('discountAmount').innerText = `- ৳ ${currentDiscount}`;
+                calculateModalTotal(); 
+            } else {
+                msgBox.innerText = data.message; msgBox.style.color = "#ff4d4d";
+                removeCoupon();
+            }
+        }).catch(err => { msgBox.innerText = "Error verifying coupon."; msgBox.style.color = "#ff4d4d"; });
+    }
+
+    function removeCoupon() {
+        currentDiscount = 0;
+        document.getElementById('hiddenCouponInput').value = "";
+        document.getElementById('couponCodeUI').value = "";
+        document.getElementById('couponMsg').innerText = "";
+        document.getElementById('discountRow').style.display = 'none';
+        calculateModalTotal();
+    }
+</script>
+
+{% endblock %}

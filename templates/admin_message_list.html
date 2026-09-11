@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+<div style="padding: 40px 5%; max-width: 1000px; margin: 0 auto; min-height: 80vh;">
+    <h2 style="margin-bottom:20px;">Customer Messages</h2>
+    <div style="background:white; border-radius:8px; border:1px solid #ddd; overflow:hidden;">
+        {% for user in users %}
+        <div style="padding:20px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <strong style="font-size:16px;">{{ user.name }}</strong> <br>
+                <small style="color:#666;">{{ user.email }}</small>
+            </div>
+            <a href="/admin/chat/{{ user.id }}" style="background:black; color:white; padding:10px 20px; border-radius:5px; font-size:13px; font-weight:bold; text-decoration:none;">Reply</a>
+        </div>
+        {% else %}
+        <p style="padding:40px; text-align:center; color:#777;">No messages yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .terms-container {
+        max-width: 800px;
+        margin: 60px auto;
+        padding: 40px;
+        background: rgba(15, 15, 15, 0.6);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(198, 167, 94, 0.15);
+        border-radius: 16px;
+        color: #ddd;
+    }
+    .terms-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    .terms-header h1 {
+        font-family: var(--font-head);
+        color: #fff;
+        font-size: 32px;
+        letter-spacing: 2px;
+        margin-bottom: 10px;
+    }
+    .terms-header p {
+        color: var(--accent-color);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .terms-content h3 {
+        color: #fff;
+        margin-top: 30px;
+        margin-bottom: 15px;
+        font-size: 18px;
+    }
+    .terms-content p, .terms-content li {
+        font-size: 14px;
+        line-height: 1.8;
+        color: #aaa;
+        margin-bottom: 15px;
+    }
+    @media (max-width: 480px) {
+        .terms-container { padding: 25px; margin: 30px 15px; }
+        .terms-header h1 { font-size: 24px; }
+    }
+</style>
+
+<div class="container">
+    <div class="terms-container">
+        <div class="terms-header">
+            <h1>Terms & Policy</h1>
+            <p>Aivaro Premium Men's Essentials</p>
+        </div>
+        
+        <div class="terms-content">
+            <h3>1. Introduction</h3>
+            <p>Welcome to AIVARO. By accessing our website and placing an order, you agree to be bound by the following terms and policies. Please read them carefully.</p>
+
+            <h3>2. Product Quality & Sizing</h3>
+            <p>We ensure premium quality for all our drop-shoulder t-shirts, trousers, and luxury essentials. Please refer to our exact size chart before placing an order to ensure the perfect fit.</p>
+
+            <h3>3. Payment & Pricing</h3>
+            <p>We offer both Cash on Delivery (COD) and secure Online Payment options. Prices are subject to change without prior notice, but orders already placed will maintain their original price.</p>
+
+            <h3>4. Shipping & Delivery</h3>
+            <ul>
+                <li>Inside Dhaka: Standard delivery within 2-3 business days.</li>
+                <li>Outside Dhaka: Standard delivery within 3-5 business days.</li>
+            </ul>
+
+            <h3>5. Return & Exchange Policy</h3>
+            <p>We accept returns or exchanges within 3 days of delivery if the product is damaged, defective, or if the wrong size was delivered. The product must be unused and have its original tags intact.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

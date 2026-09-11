@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+    .admin-layout { display: flex; min-height: 100vh; background: var(--bg-color); }
+    
+    .admin-sidebar { 
+        width: 260px; background: var(--panel-color); border-right: 1px solid var(--border-color); 
+        position: fixed; height: 100vh; display: flex; flex-direction: column; padding: 30px 0; z-index: 100;
+    }
+    
+    .admin-main { flex: 1; margin-left: 260px; padding: 40px; max-width: 1200px; }
+
+    .sidebar-logo { font-family: var(--font-head); font-size: 28px; color: var(--text-color); text-align: center; margin-bottom: 50px; letter-spacing: 3px; font-weight: 600;}
+    .sidebar-logo span { color: var(--accent-color); }
+    
+    .sidebar-menu { display: flex; flex-direction: column; gap: 8px; padding: 0 20px; flex: 1;}
+    .sidebar-link { display: flex; align-items: center; gap: 15px; padding: 14px 20px; color: var(--muted-color); text-decoration: none; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; border-radius: 8px; transition: 0.3s; }
+    .sidebar-link:hover, .sidebar-link.active { background: rgba(198,167,94,0.1); color: var(--accent-color); }
+    .sidebar-link i { font-size: 18px; width: 24px; text-align: center; }
+    
+    .sidebar-bottom { padding: 0 20px; margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 25px; }
+
+    .page-title { font-family: var(--font-head); font-size: 32px; color: var(--text-color); margin-bottom: 5px; display: flex; align-items: center; gap: 15px; }
+    .page-sub { font-size: 11px; color: var(--muted-color); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 40px; font-weight: 700; }
+
+    .feedback-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 25px; }
+    
+    .fb-card {
+        background: rgba(15, 15, 15, 0.45); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 25px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2); transition: 0.4s;
+        opacity: 0; transform: translateY(30px); animation: fadeUp 0.6s ease forwards;
+    }
+    body.light-theme .fb-card { background: rgba(255, 255, 255, 0.6); border-color: rgba(0,0,0,0.05); }
+    .fb-card:hover { transform: translateY(-5px); border-color: var(--accent-color); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+    .fb-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 15px; }
+    body.light-theme .fb-header { border-bottom-color: rgba(0,0,0,0.1); }
+    
+    .fb-name { font-family: var(--font-head); font-size: 18px; color: var(--accent-color); font-weight: 600; margin-bottom: 4px; }
+    .fb-email { font-size: 11px; color: var(--muted-color); }
+    .fb-date { font-size: 10px; color: var(--muted-color); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; background: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 4px; }
+
+    .fb-msg { font-size: 13px; color: var(--text-color); line-height: 1.6; margin-bottom: 20px; }
+
+    .btn-delete { background: rgba(231, 76, 60, 0.1); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.3); padding: 8px 15px; border-radius: 6px; font-size: 10px; font-weight: 800; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
+    .btn-delete:hover { background: #e74c3c; color: #FFF; }
+
+    @media(max-width: 900px) {
+        .admin-sidebar { display: none; }
+        .admin-main { margin-left: 0; padding: 20px; }
+        .feedback-grid { grid-template-columns: 1fr; }
+    }
+</style>
+
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <div class="sidebar-logo">AIV<span>A</span>RO</div>
+        <nav class="sidebar-menu">
+            <a href="/admin" class="sidebar-link"><i class="fas fa-box"></i> Products</a>
+            <a href="/admin/orders" class="sidebar-link"><i class="fas fa-shopping-bag"></i> Orders</a>
+            <a href="/admin/users" class="sidebar-link"><i class="fas fa-users"></i> Customers</a>
+            <a href="/admin/campaigns" class="sidebar-link"><i class="fas fa-ticket-alt"></i> Coupons</a>
+            <a href="/admin/banners" class="sidebar-link"><i class="fas fa-image"></i> Banners</a>
+            <a href="/admin/feedback" class="sidebar-link active"><i class="fas fa-comment-dots"></i> Feedback</a>
+        </nav>
+        <div class="sidebar-bottom">
+            <a href="/" class="sidebar-link" style="color: var(--muted-color);"><i class="fas fa-store"></i> Storefront</a>
+            <a href="/logout" class="sidebar-link" style="color: #ff4d4d;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <h2 class="page-title"><i class="fas fa-comment-dots" style="color: var(--accent-color);"></i> Customer Feedback</h2>
+        <div class="page-sub">Read and manage suggestions from your clients</div>
+
+        <div class="feedback-grid">
+            {% if feedbacks %}
+                {% for fb in feedbacks %}
+                <div class="fb-card" style="animation-delay: {{ loop.index0 * 0.1 }}s;">
+                    <div class="fb-header">
+                        <div>
+                            <div class="fb-name">{{ fb.name }}</div>
+                            <div class="fb-email"><i class="fas fa-envelope"></i> {{ fb.email }}</div>
+                        </div>
+                        <div class="fb-date">{{ fb.created_at.strftime('%d %b, %Y') }}</div>
+                    </div>
+                    <div class="fb-msg">
+                        "{{ fb.message }}"
+                    </div>
+                    <div style="text-align: right;">
+                        <form action="/admin/delete-feedback/{{ fb.id }}" method="POST" onsubmit="return confirm('Delete this feedback?');">
+                            <button type="submit" class="btn-delete"><i class="fas fa-trash-alt"></i> Delete</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div style="grid-column: 1 / -1; text-align: center; padding: 80px 20px; border-radius: 16px; border: 1px dashed var(--border-color);">
+                    <i class="fas fa-inbox" style="font-size: 50px; color: var(--muted-color); opacity: 0.3; margin-bottom: 20px;"></i>
+                    <h3 style="color: var(--text-color); font-family: var(--font-head); font-size: 24px; margin-bottom: 10px;">No Feedback Yet</h3>
+                    <p style="font-size: 12px; color: var(--muted-color); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">You haven't received any suggestions from customers.</p>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+</div>
+{% endblock %}

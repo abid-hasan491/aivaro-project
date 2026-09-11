@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+    .profile-container { max-width: 1100px; margin: 50px auto; padding: 0 20px; display: grid; grid-template-columns: 1fr 2fr; gap: 30px; align-items: start; }
+    
+    .panel { background: rgba(15, 15, 15, 0.45); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
+    body.light-theme .panel { background: rgba(255, 255, 255, 0.6); border-color: rgba(0, 0, 0, 0.05); }
+
+    /* Left Card */
+    .profile-card { text-align: center; }
+    .avatar-circle { width: 120px; height: 120px; margin: 0 auto 20px; border-radius: 50%; background: linear-gradient(135deg, #c6a75e, #8c7335); display: flex; align-items: center; justify-content: center; font-size: 50px; font-family: var(--font-head); color: #000; font-weight: 700; box-shadow: 0 0 30px rgba(198,167,94,0.3); border: 2px solid #000; }
+    .user-name { font-family: var(--font-head); font-size: 24px; color: var(--text-color); margin-bottom: 5px; }
+    .user-email { font-size: 11px; color: var(--muted-color); margin-bottom: 30px; }
+
+    .member-badge { background: rgba(0,0,0,0.3); border: 1px solid rgba(198,167,94,0.3); padding: 25px 20px; border-radius: 12px; text-align: left; position: relative; overflow: hidden; }
+    .member-badge::before { content:''; position:absolute; top:0; left:-100%; width:50%; height:100%; background: linear-gradient(to right, transparent, rgba(198,167,94,0.1), transparent); transform: skewX(-25deg); animation: shine 4s infinite; }
+    @keyframes shine { 0% {left: -100%;} 20% {left: 200%;} 100% {left: 200%;} }
+    
+    /* Right Form */
+    .section-title { font-family: var(--font-head); font-size: 20px; color: var(--accent-color); margin-bottom: 25px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+    
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; font-size: 10px; font-weight: 700; color: var(--muted-color); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1.5px; }
+    
+    .form-control { width: 100%; padding: 15px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.08); color: var(--text-color); border-radius: 8px; font-family: var(--font-body); font-size: 13px; outline: none; transition: 0.3s; }
+    body.light-theme .form-control { background: rgba(255,255,255,0.4); color: #000;}
+    .form-control:focus { border-color: var(--accent-color); background: rgba(0,0,0,0.4); }
+
+    .btn-save { width: 100%; background: var(--accent-color); color: #000; border: none; padding: 18px; border-radius: 30px; font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: 0.4s; margin-top: 10px; box-shadow: 0 10px 25px rgba(198,167,94,0.2); }
+    .btn-save:hover { background: #FFF; box-shadow: 0 15px 35px rgba(255,255,255,0.3); transform: translateY(-3px); }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+        .profile-container { grid-template-columns: 1fr; padding: 20px 15px; }
+        .grid-2 { grid-template-columns: 1fr; gap: 15px; }
+        .panel { padding: 30px 20px; }
+    }
+</style>
+
+<div class="profile-container">
+    <div class="panel profile-card">
+        <div class="avatar-circle">{{ user.name[0].upper() }}</div>
+        <h2 class="user-name">{{ user.name }}</h2>
+        <p class="user-email">{{ user.email }}</p>
+
+        <div class="member-badge">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div style="font-family: var(--font-head); font-size: 18px; font-weight: bold; color: white;">AIV<span style="color:var(--accent-color);">A</span>RO</div>
+                <div style="background: rgba(46, 204, 113, 0.2); color: #2ecc71; border: 1px solid #2ecc71; padding: 4px 10px; border-radius: 30px; font-size: 9px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;"><i class="fas fa-check-circle"></i> Verified</div>
+            </div>
+            <div style="font-size: 9px; color: var(--muted-color); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px;">Exclusive Member</div>
+            <div style="font-size: 15px; font-weight: 700; color: var(--accent-color); margin-bottom: 25px;">{{ user.name }}</div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                <div>
+                    <div style="font-size: 9px; color: var(--muted-color); text-transform: uppercase; letter-spacing: 1px;">Member Since</div>
+                    <div style="font-size: 13px; font-weight: bold; color: white;">2026</div>
+                </div>
+                <i class="fas fa-fingerprint" style="font-size: 28px; color: var(--accent-color); opacity: 0.6;"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel profile-form">
+        <form action="/profile" method="POST">
+            <h3 class="section-title"><i class="fas fa-user-edit"></i> Personal Information</h3>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" name="name" class="form-control" value="{{ user.name }}" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" name="phone" class="form-control" value="{{ user.phone }}" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Email Address <span style="text-transform: none; font-weight: 400; color: var(--muted-color);">(Cannot be changed)</span></label>
+                <input type="email" class="form-control" value="{{ user.email }}" readonly style="opacity: 0.5; cursor: not-allowed;">
+            </div>
+
+            <!-- 🔥 THE NEW BIRTHDAY FIELD -->
+            <div class="form-group">
+                <label class="form-label">Date of Birth <span style="text-transform: none; font-weight: 600; color: var(--accent-color);">{% if user.dob %}(Locked){% else %}(Set once for special gifts!){% endif %}</span></label>
+                <input type="date" name="dob" class="form-control" value="{{ user.dob or '' }}" {% if user.dob %}readonly style="opacity: 0.5; cursor: not-allowed;"{% endif %} required>
+            </div>
+
+            <h3 class="section-title" style="margin-top: 40px;"><i class="fas fa-map-marker-alt"></i> Shipping Details</h3>
+            <div class="form-group">
+                <label class="form-label">Delivery Address</label>
+                <textarea name="address" class="form-control" rows="3" required>{{ user.address }}</textarea>
+            </div>
+
+            <button type="submit" class="btn-save">Save Changes <i class="fas fa-arrow-right" style="margin-left: 5px;"></i></button>
+        </form>
+    </div>
+</div>
+{% endblock %}

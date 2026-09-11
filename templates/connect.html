@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: #f9f9f9;">
+    
+    <div style="background: white; padding: 40px 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); max-width: 450px; width: 100%; text-align: center;">
+        
+        <div style="width: 70px; height: 70px; background: black; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto 20px;">
+            <i class="fas fa-headset"></i>
+        </div>
+
+        <h2 style="margin-bottom: 10px; font-weight: bold; color: #333; font-size: 24px;">WE'RE HERE TO HELP!</h2>
+        <p style="color: #777; margin-bottom: 30px; font-size: 14px;">Have questions? Reach out to us directly.</p>
+
+        <div class="contact-card">
+            <div class="icon-box phone-icon">
+                <i class="fas fa-phone-alt"></i>
+            </div>
+            <div class="info-box">
+                <span class="label">CALL US NOW</span>
+                <a href="tel:+8801629797247" class="value-text">01629797247</a>
+            </div>
+            <button onclick="copyText('01629797247')" class="action-btn" title="Copy Number">
+                <i class="fas fa-copy"></i>
+            </button>
+        </div>
+
+        <div class="contact-card">
+            <div class="icon-box email-icon">
+                <i class="fas fa-envelope"></i>
+            </div>
+            <div class="info-box">
+                <span class="label">SEND AN EMAIL</span>
+                <a href="mailto:zyraeclothing@gmail.com" class="value-text email-text">zyraeclothing@gmail.com</a>
+            </div>
+            <a href="mailto:zyraeclothing@gmail.com" class="action-btn" title="Send Email">
+                <i class="fas fa-paper-plane"></i>
+            </a>
+        </div>
+
+        <div style="margin-top: 30px;">
+            <a href="/" style="text-decoration: none; color: #999; font-size: 14px; font-weight: bold; padding: 10px;">&larr; Back to Home</a>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function copyText(text) {
+        // নতুন মেথড চেষ্টা করবে
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Phone number copied: " + text);
+            });
+        } else {
+            // যদি কাজ না করে (HTTP তে), এই ব্যাকআপ মেথড চলবে
+            let textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert("Phone number copied: " + text);
+            } catch (err) {
+                console.error('Unable to copy', err);
+            }
+            document.body.removeChild(textArea);
+        }
+    }
+</script>
+
+<style>
+    /* CARD DESIGN */
+    .contact-card {
+        display: flex; align-items: center; gap: 15px; 
+        background: #fff; border: 1px solid #eee; 
+        padding: 15px; border-radius: 12px; margin-bottom: 15px;
+        transition: 0.3s; position: relative;
+        text-align: left;
+    }
+    .contact-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        border-color: #333;
+    }
+
+    /* ICONS */
+    .icon-box {
+        width: 45px; height: 45px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center; font-size: 18px; color: white;
+        flex-shrink: 0;
+    }
+    .phone-icon { background: #333; }
+    .email-icon { background: #d32f2f; } /* ইমেইলের জন্য আলাদা লালচে রঙ */
+
+    /* TEXT INFO */
+    .info-box { flex: 1; overflow: hidden; } /* টেক্সট যাতে কার্ডের বাইরে না যায় */
+    
+    .label { 
+        display: block; font-size: 10px; color: #888; 
+        font-weight: bold; letter-spacing: 1px; margin-bottom: 2px; text-transform: uppercase;
+    }
+    
+    .value-text { 
+        text-decoration: none; color: black; font-weight: bold; font-size: 16px; display: block;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; /* বড় টেক্সট হ্যান্ডেল করবে */
+    }
+    
+    /* ইমেইল টেক্সট মোবাইলে ছোট করার জন্য */
+    .email-text { font-size: 14px; } 
+
+    /* BUTTONS */
+    .action-btn {
+        background: #f4f4f4; color: #333; border: none; 
+        width: 40px; height: 40px; border-radius: 50%; 
+        display: flex; align-items: center; justify-content: center; 
+        cursor: pointer; transition: 0.2s; text-decoration: none; font-size: 14px;
+        flex-shrink: 0;
+    }
+    .action-btn:hover { background: black; color: white; }
+
+    /* MOBILE ADJUSTMENTS */
+    @media (max-width: 400px) {
+        .contact-card { padding: 12px; gap: 10px; }
+        .icon-box { width: 35px; height: 35px; font-size: 14px; }
+        .action-btn { width: 35px; height: 35px; font-size: 12px; }
+        .value-text { font-size: 14px; }
+        .email-text { font-size: 12px; } /* মোবাইলে ইমেইল আরও ছোট */
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<div style="padding: 40px 5%; max-width: 800px; margin: 0 auto; min-height:80vh;">
+    <h3 style="margin-bottom:20px;">Chat with {{ user.name }}</h3>
+    
+    <div id="adminChatBox" style="height:500px; overflow-y:auto; background:#f9f9f9; padding:20px; border:1px solid #ddd; border-radius:10px; margin-bottom:20px; display:flex; flex-direction:column; gap:10px;">
+        {% for msg in messages %}
+        <div style="align-self: {{ 'flex-end' if msg.is_admin_reply else 'flex-start' }}; max-width:70%;">
+            <div style="padding:12px 16px; border-radius:10px; background: {{ 'black' if msg.is_admin_reply else 'white' }}; color: {{ 'white' if msg.is_admin_reply else 'black' }}; border: {{ 'none' if msg.is_admin_reply else '1px solid #ddd' }};">
+                {% if msg.content %}{{ msg.content }}<br>{% endif %}
+                {% if msg.image_url %}<img src="/static/images/{{ msg.image_url }}" style="max-width:200px; border-radius:5px; margin-top:5px;"><br>{% endif %}
+                {% if msg.audio_url %}<audio controls src="/static/images/{{ msg.audio_url }}" style="margin-top:5px; width:200px;"></audio>{% endif %}
+            </div>
+            <div style="font-size:10px; color:#888; margin-top:3px; text-align: {{ 'right' if msg.is_admin_reply else 'left' }};">{{ msg.timestamp.strftime('%I:%M %p') }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <form action="/admin/chat-reply" method="POST" style="display:flex; gap:10px;">
+        <input type="hidden" name="user_id" value="{{ user.id }}">
+        <input type="text" name="content" placeholder="Type a reply..." required style="flex:1; padding:15px; border:1px solid #ddd; border-radius:8px; font-size:14px; outline:none;">
+        <button type="submit" style="background:black; color:white; border:none; padding:0 30px; border-radius:8px; font-weight:bold; cursor:pointer;">Send</button>
+    </form>
+</div>
+
+<script>
+    // Auto scroll bottom on load
+    const box = document.getElementById('adminChatBox');
+    box.scrollTop = box.scrollHeight;
+</script>
+{% endblock %}

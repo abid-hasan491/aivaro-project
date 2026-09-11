@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+    .success-wrapper {
+        min-height: 75vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 4vw;
+    }
+    
+    /* 💎 Luxury Rounded Glass Card */
+    .success-card {
+        background: rgba(15,15,15,0.4);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 35px; /* Premium Rounded Shape */
+        padding: 55px 45px;
+        max-width: 550px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 25px 50px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(198,167,94,0.15);
+        animation: scaleUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    body.light-theme .success-card {
+        background: rgba(255,255,255,0.7);
+        border-color: rgba(0,0,0,0.05);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(198,167,94,0.3);
+    }
+
+    @keyframes scaleUp {
+        from { opacity: 0; transform: scale(0.9) translateY(40px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* ✨ Glowing Checkmark Circle */
+    .icon-circle {
+        width: 90px;
+        height: 90px;
+        background: rgba(198,167,94,0.1);
+        border: 2px solid var(--accent-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 38px;
+        color: var(--accent-color);
+        margin: 0 auto 30px;
+        box-shadow: 0 10px 30px rgba(198,167,94,0.3);
+        animation: pulseCheck 2s infinite alternate ease-in-out;
+    }
+    
+    @keyframes pulseCheck {
+        from { box-shadow: 0 10px 30px rgba(198,167,94,0.2); transform: scale(1); }
+        to { box-shadow: 0 15px 45px rgba(198,167,94,0.5); transform: scale(1.05); }
+    }
+
+    .success-title {
+        font-family: var(--font-head);
+        font-size: 38px;
+        color: var(--text-color);
+        margin-bottom: 15px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+    
+    .success-desc {
+        font-size: 13px;
+        color: var(--muted-color);
+        line-height: 1.6;
+        margin-bottom: 35px;
+    }
+
+    /* 🏷️ Rounded Order ID Box */
+    .order-id-box {
+        background: rgba(0,0,0,0.2);
+        border: 1px dashed var(--accent-color);
+        border-radius: 20px;
+        padding: 15px 30px;
+        display: inline-block;
+        margin-bottom: 40px;
+    }
+    body.light-theme .order-id-box { background: rgba(255,255,255,0.5); }
+    
+    .order-id-box span {
+        font-size: 11px;
+        color: var(--muted-color);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 700;
+    }
+    .order-id-box strong {
+        font-family: var(--font-head);
+        font-size: 26px;
+        color: var(--accent-color);
+        letter-spacing: 2px;
+    }
+
+    /* 🎛️ Button Group */
+    .btn-group {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+    }
+    
+    .btn-fill, .btn-outline {
+        flex: 1;
+        padding: 16px 20px;
+        border-radius: 30px; /* Fully rounded buttons */
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .btn-fill {
+        background: var(--accent-color);
+        color: #000;
+        border: none;
+        box-shadow: 0 8px 20px rgba(198,167,94,0.3);
+    }
+    .btn-fill:hover {
+        background: #FFF;
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(198,167,94,0.5);
+    }
+    
+    .btn-outline {
+        background: transparent;
+        color: var(--text-color);
+        border: 1px solid var(--glass-border);
+    }
+    body.light-theme .btn-outline {
+        color: #000;
+        border-color: rgba(0,0,0,0.1);
+    }
+    .btn-outline:hover {
+        border-color: var(--accent-color);
+        color: var(--accent-color);
+        background: rgba(198,167,94,0.1);
+        transform: translateY(-3px);
+    }
+
+    /* 📱 MOBILE RESPONSIVE OPTIMIZATION */
+    @media (max-width: 600px) {
+        .success-card { padding: 40px 25px; border-radius: 28px; }
+        .success-title { font-size: 30px; }
+        .btn-group { flex-direction: column; gap: 12px; }
+        .btn-fill, .btn-outline { width: 100%; padding: 18px; }
+        .icon-circle { width: 75px; height: 75px; font-size: 30px; margin-bottom: 20px; }
+        .order-id-box { padding: 12px 25px; margin-bottom: 30px; }
+    }
+</style>
+
+<div class="success-wrapper">
+    <div class="success-card liquid-glass">
+        
+        <div class="icon-circle">
+            <i class="fas fa-check"></i>
+        </div>
+        
+        <h1 class="success-title">Thank You!</h1>
+        <p class="success-desc">
+            Your luxury order has been placed successfully. We are currently processing it and will dispatch it soon.
+        </p>
+
+        <div class="order-id-box">
+            <span>Order ID</span>
+            <strong>#{{ order.id }}</strong>
+        </div>
+
+        <div class="btn-group">
+            <!-- 🔥 Guest / Authenticated User Routing Logic -->
+            {% if current_user.is_authenticated %}
+                <a href="/track-order?id={{ order.id }}" class="btn-fill">
+                    <i class="fas fa-map-marker-alt"></i> Track Order
+                </a>
+            {% else %}
+                <a href="/login?next=track-order" class="btn-fill" onclick="showGuestLoginToast()">
+                    <i class="fas fa-lock"></i> Track Order
+                </a>
+            {% endif %}
+            
+            <a href="/shop" class="btn-outline">
+                <i class="fas fa-shopping-bag"></i> Continue Shopping
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+<script>
+    // Show a helpful toast message when a guest tries to track an order
+    function showGuestLoginToast() {
+        if(window.showGlobalToast) {
+            window.showGlobalToast("Please log in or sign up to access order tracking details.", "success");
+        }
+    }
+</script>
+
+{% endblock %}

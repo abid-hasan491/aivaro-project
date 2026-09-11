@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+    .about-hero {
+        position: relative;
+        height: 60vh;
+        background-image: url('https://images.unsplash.com/photo-1516257984-b1b4d707412e?q=80&w=1920&auto=format&fit=crop');
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .about-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+    }
+
+    .about-hero-content {
+        position: relative;
+        z-index: 10;
+        animation: fadeInUp 1s ease;
+    }
+
+    .about-title {
+        font-family: var(--font-head);
+        font-size: 48px;
+        color: var(--accent-color);
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+    .about-subtitle {
+        font-size: 14px;
+        color: var(--text-color);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    .story-section {
+        max-width: 900px;
+        margin: 80px auto;
+        padding: 0 20px;
+        text-align: center;
+        line-height: 1.8;
+    }
+
+    .story-heading {
+        font-family: var(--font-head);
+        font-size: 32px;
+        color: var(--text-color);
+        margin-bottom: 30px;
+    }
+
+    .story-text {
+        font-size: 15px;
+        color: var(--muted-color);
+        margin-bottom: 25px;
+    }
+
+    .core-values {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 30px;
+        max-width: 1200px;
+        margin: 60px auto 100px;
+        padding: 0 20px;
+    }
+
+    .value-card {
+        background: var(--panel-color);
+        padding: 40px 20px;
+        border: 1px solid var(--border-color);
+        text-align: center;
+        border-radius: 4px;
+        transition: 0.3s;
+    }
+
+    .value-card:hover {
+        border-color: var(--accent-color);
+        transform: translateY(-5px);
+    }
+
+    .value-icon {
+        font-size: 30px;
+        color: var(--accent-color);
+        margin-bottom: 20px;
+    }
+
+    .value-title {
+        font-family: var(--font-head);
+        font-size: 18px;
+        color: var(--text-color);
+        margin-bottom: 15px;
+    }
+
+    .value-desc {
+        font-size: 13px;
+        color: var(--muted-color);
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+        .about-title { font-size: 36px; }
+        .core-values { grid-template-columns: 1fr; gap: 20px; }
+        .story-section { margin: 50px auto; }
+    }
+</style>
+
+<div class="about-hero">
+    <div class="about-overlay"></div>
+    <div class="about-hero-content">
+        <h1 class="about-title">About Us</h1>
+        <p class="about-subtitle">Redefining Modern Elegance</p>
+    </div>
+</div>
+
+<div class="story-section">
+    <h2 class="story-heading">The AIVARO Legacy</h2>
+    <p class="story-text">
+        AIVARO was born out of a desire to bring the timeless elegance of the 'Old Money' aesthetic to the modern gentleman. We believe that true luxury is not loud or flashy; it is found in the subtle details, the quality of the fabric, and the precision of the cut.
+    </p>
+    <p class="story-text">
+        Every piece in our collection is meticulously crafted to ensure you not only look sophisticated but feel entirely comfortable. From premium Cuban collar shirts to luxury Panjabis, AIVARO is your destination for essentials that transcend passing trends.
+    </p>
+</div>
+
+<div class="core-values">
+    <div class="value-card">
+        <i class="fas fa-cut value-icon"></i>
+        <h3 class="value-title">Master Craftsmanship</h3>
+        <p class="value-desc">Every stitch is placed with precision, ensuring a perfect fit and a silhouette that flatters the modern man.</p>
+    </div>
+    
+    <div class="value-card">
+        <i class="fas fa-gem value-icon"></i>
+        <h3 class="value-title">Premium Materials</h3>
+        <p class="value-desc">We source only the finest fabrics that feel luxurious against the skin and are built to last a lifetime.</p>
+    </div>
+    
+    <div class="value-card">
+        <i class="fas fa-hourglass-half value-icon"></i>
+        <h3 class="value-title">Timeless Design</h3>
+        <p class="value-desc">Our designs are untouched by fleeting trends. AIVARO creates wardrobe staples that remain classic year after year.</p>
+    </div>
+</div>
+
+{% endblock %}

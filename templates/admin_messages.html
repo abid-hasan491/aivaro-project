@@ -1,0 +1,149 @@
+{% extends 'admin_base.html' %} 
+{% block content %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+
+<style>
+    .chat-dashboard { 
+        display: flex; height: 75vh; max-width: 1200px; margin: 40px auto; 
+        background: var(--panel-color); border: 1px solid var(--border-color); 
+        border-radius: 8px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    
+    /* Left Sidebar */
+    .chat-sidebar { width: 320px; background: #050505; border-right: 1px solid var(--border-color); overflow-y: auto; }
+    .sidebar-head { padding: 20px; background: #000; color: var(--accent-color); font-family: var(--font-head); font-size: 18px; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; }
+    .chat-list-item { padding: 15px 20px; border-bottom: 1px solid #1a1a1a; cursor: pointer; display: flex; align-items: center; gap: 15px; transition: 0.3s; }
+    .chat-list-item:hover, .chat-list-item.active { background: #111; border-left: 3px solid var(--accent-color); }
+    .avatar { width: 45px; height: 45px; background: var(--accent-color); color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; }
+    
+    /* Right Chat Box */
+    .chat-window { flex: 1; display: flex; flex-direction: column; background: var(--bg-color); }
+    .chat-header { padding: 20px; background: #000; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 15px; }
+    .chat-messages { flex: 1; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+    
+    /* Input Area */
+    .chat-input-area { padding: 20px; background: #050505; border-top: 1px solid var(--border-color); display: flex; gap: 15px; align-items: center; }
+    .chat-input { flex: 1; padding: 15px; background: #111; border: 1px solid #333; color: white; border-radius: 4px; outline: none; font-size: 14px; }
+    .chat-input:focus { border-color: var(--accent-color); }
+    .btn-send { background: var(--accent-color); border: none; padding: 0 30px; height: 50px; color: #000; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 16px; transition: 0.3s; }
+    .btn-send:hover { background: #d4b76e; }
+
+    /* Admin Bubbles */
+    .msg { padding: 12px 18px; border-radius: 8px; max-width: 70%; font-size: 14px; line-height: 1.5; }
+    .msg.admin { background: var(--accent-color); color: #000; align-self: flex-end; border-bottom-right-radius: 0; font-weight: 500; }
+    .msg.user { background: #1a1a1a; color: #fff; align-self: flex-start; border-bottom-left-radius: 0; border: 1px solid #333; }
+</style>
+
+<div class="chat-dashboard">
+    <div class="chat-sidebar">
+        <div class="sidebar-head">Active Inboxes</div>
+        
+        <div style="padding: 10px 15px; font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; background: #111;">Registered Users</div>
+        {% for u in users %}
+        <div class="chat-list-item" onclick="loadChat('False', '{{ u.id }}', '{{ u.name }}')">
+            <div class="avatar">{{ u.name[0]|upper }}</div>
+            <div>
+                <div style="color: white; font-weight: 500;">{{ u.name }}</div>
+                <div style="color: #666; font-size: 12px;">ID: {{ u.id }}</div>
+            </div>
+        </div>
+        {% endfor %}
+        
+        <div style="padding: 10px 15px; font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; background: #111;">Guest Users</div>
+        {% for g in guests %}
+        <div class="chat-list-item" onclick="loadChat('True', '{{ g.id }}', 'Guest {{ g.id[:4] }}')">
+            <div class="avatar" style="background: #333; color: white;">G</div>
+            <div>
+                <div style="color: white; font-weight: 500;">Guest {{ g.id[:6] }}...</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="chat-window">
+        <div class="chat-header">
+            <div class="avatar" id="activeAvatar" style="display:none; width:35px; height:35px; font-size:14px;"></div>
+            <div id="activeChatName" style="color: white; font-weight: 600; font-size: 18px;">Select a conversation</div>
+        </div>
+        
+        <div class="chat-messages" id="adminChatBody">
+            <div style="text-align:center; color:#555; margin-top: 50px;">
+                <i class="fas fa-inbox" style="font-size: 40px; margin-bottom: 15px;"></i><br>
+                Messages will appear here.
+            </div>
+        </div>
+        
+        <div class="chat-input-area" id="inputArea" style="display: none;">
+            <input type="hidden" id="activeUserId">
+            <input type="hidden" id="activeIsGuest">
+            <input type="text" id="adminInput" class="chat-input" placeholder="Type your reply to customer..." onkeypress="if(event.key === 'Enter') sendAdminMessage()">
+            <button class="btn-send" onclick="sendAdminMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const socket = io();
+    let currentRoom = null;
+
+    // Load Chat History
+    function loadChat(isGuest, targetId, userName) {
+        // UI Updates
+        document.getElementById('activeChatName').innerText = userName;
+        document.getElementById('activeAvatar').style.display = 'flex';
+        document.getElementById('activeAvatar').innerText = userName[0];
+        document.getElementById('inputArea').style.display = 'flex';
+        
+        document.getElementById('activeUserId').value = targetId;
+        document.getElementById('activeIsGuest').value = isGuest;
+        
+        // Connect Socket to this specific user's room to receive their live messages
+        if(currentRoom) { socket.emit('leave', { room: currentRoom }); }
+        currentRoom = targetId;
+        socket.emit('join', { room: currentRoom });
+        
+        // Fetch previous messages
+        const type = isGuest === 'True' ? 'guest' : 'user';
+        fetch(`/admin/chat/${type}/${targetId}`)
+            .then(res => res.text())
+            .then(html => {
+                const body = document.getElementById('adminChatBody');
+                body.innerHTML = html;
+                body.scrollTop = body.scrollHeight;
+            });
+    }
+
+    // Instantly Receive Messages from the User you are looking at
+    socket.on('receive_message', function(msg) {
+        const body = document.getElementById('adminChatBody');
+        let content = '';
+        if(msg.image) content += `<img src="/static/chat_images/${msg.image}" style="max-width:200px; border-radius:5px; margin-bottom:5px; display:block;">`;
+        if(msg.content) content += `<span>${msg.content}</span>`;
+        
+        // If admin sent it, show as admin bubble. If user sent it, show as user bubble.
+        const msgClass = msg.type === 'admin' ? 'msg admin' : 'msg user';
+        
+        body.innerHTML += `<div class="${msgClass}">${content}</div>`;
+        body.scrollTop = body.scrollHeight;
+    });
+
+    // Send Admin Reply
+    function sendAdminMessage() {
+        const input = document.getElementById('adminInput');
+        const targetId = document.getElementById('activeUserId').value;
+        const isGuest = document.getElementById('activeIsGuest').value === 'True';
+        
+        if (!input.value.trim() || !targetId) return;
+
+        // Emit message instantly via Socket
+        socket.emit('send_message', {
+            receiver_id: isGuest ? null : targetId,
+            guest_id: isGuest ? targetId : null,
+            content: input.value,
+            is_admin: true
+        });
+        
+        input.value = '';
+    }
+</script>
+{% endblock %}

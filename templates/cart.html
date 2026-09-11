@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+    .cart-wrapper { max-width: 1200px; margin: 50px auto; padding: 0 4vw; }
+    
+    .cart-header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--glass-border); padding-bottom: 15px; margin-bottom: 30px; }
+    .cart-title { font-family: var(--font-head); font-size: 32px; color: var(--text-color); text-transform: uppercase; letter-spacing: 2px; }
+    .item-count { font-size: 13px; font-weight: 700; color: var(--accent-color); text-transform: uppercase; letter-spacing: 1px; }
+
+    .cart-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 40px; align-items: start; }
+
+    .panel { background: rgba(15,15,15,0.4); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 30px; }
+    body.light-theme .panel { background: rgba(255,255,255,0.6); border-color: rgba(0,0,0,0.05); }
+
+    /* CART ITEMS */
+    .cart-items-container { display: flex; flex-direction: column; gap: 20px; }
+    .cart-item-card { display: flex; gap: 20px; padding-bottom: 20px; border-bottom: 1px dashed rgba(255,255,255,0.1); position: relative; }
+    .cart-item-card:last-child { border-bottom: none; padding-bottom: 0; }
+    body.light-theme .cart-item-card { border-bottom-color: rgba(0,0,0,0.1); }
+    
+    .item-img { width: 100px; height: 130px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
+    .item-details { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    
+    .item-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .item-name { font-size: 16px; font-weight: bold; color: var(--text-color); text-transform: uppercase; margin-bottom: 5px; }
+    .item-size { font-size: 11px; color: var(--muted-color); text-transform: uppercase; letter-spacing: 1px; }
+    .item-price { font-weight: 800; color: var(--accent-color); font-size: 16px; }
+
+    .item-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
+    
+    .qty-controls { display: flex; align-items: center; border: 1px solid var(--glass-border); border-radius: 8px; overflow: hidden; background: rgba(0,0,0,0.2); }
+    .qty-btn { background: transparent; border: none; color: var(--text-color); padding: 8px 15px; cursor: pointer; transition: 0.3s; font-size: 14px; }
+    .qty-btn:hover { color: var(--accent-color); background: rgba(255,255,255,0.05); }
+    .qty-val { padding: 0 15px; font-weight: bold; font-size: 13px; color: var(--text-color); }
+    body.light-theme .qty-controls { background: rgba(255,255,255,0.4); }
+
+    .remove-btn { background: transparent; border: none; color: var(--muted-color); font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.3s; text-decoration: underline; }
+    .remove-btn:hover { color: #ff4d4d; }
+
+    /* ORDER SUMMARY */
+    .summary-title { font-family: var(--font-head); font-size: 20px; color: var(--text-color); margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1.5px; }
+    .summary-row { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; color: var(--muted-color); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+    .summary-row.total { border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 20px; margin-top: 10px; font-size: 16px; color: var(--text-color); align-items: center; }
+    body.light-theme .summary-row.total { border-top-color: rgba(0,0,0,0.1); }
+    .total-val { font-size: 22px; color: var(--accent-color); font-weight: bold; }
+
+    /* 🔥 THE FIXED CHECKOUT BUTTON */
+    .btn-checkout { width: 100%; background: #F5F5F5; color: #000; padding: 18px; border: none; border-radius: 30px; font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: 0.3s; margin-top: 25px; display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; }
+    .btn-checkout:hover { background: var(--accent-color); transform: translateY(-3px); box-shadow: 0 10px 25px rgba(198,167,94,0.3); }
+
+    .secure-badge { text-align: center; margin-top: 15px; font-size: 10px; color: #2ecc71; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+
+    @media (max-width: 768px) {
+        .cart-grid { grid-template-columns: 1fr; gap: 30px; }
+        .item-img { width: 80px; height: 100px; }
+        .cart-title { font-size: 24px; }
+    }
+</style>
+
+<div class="cart-wrapper">
+    <div class="cart-header">
+        <h1 class="cart-title">Shopping Bag</h1>
+        <div class="item-count" id="headerItemCount">0 Items</div>
+    </div>
+
+    <div class="cart-grid">
+        <div class="panel liquid-glass">
+            <div class="cart-items-container" id="cartItemsContainer">
+                <div style="text-align: center; padding: 40px; color: var(--muted-color);">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 30px; margin-bottom: 15px;"></i>
+                    <p>Loading your masterpiece...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel liquid-glass">
+            <h2 class="summary-title">Order Summary</h2>
+            
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span id="subtotalAmount">৳ 0</span>
+            </div>
+            <div class="summary-row">
+                <span>Shipping</span>
+                <span style="color: var(--text-color);">Calculated at Checkout</span>
+            </div>
+            
+            <div class="summary-row total">
+                <span>Estimated Total</span>
+                <span class="total-val" id="totalAmount">৳ 0</span>
+            </div>
+
+            <a href="/checkout" class="btn-checkout" id="checkoutBtn">
+                Secure Checkout <i class="fas fa-lock"></i>
+            </a>
+
+            <div class="secure-badge">
+                <i class="fas fa-shield-alt"></i> Safe & Encrypted Payments
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function loadCart() {
+        fetch('/api/get-cart')
+        .then(res => res.json())
+        .then(data => {
+            const container = document.getElementById('cartItemsContainer');
+            document.getElementById('headerItemCount').innerText = `${data.items.length} ITEM${data.items.length !== 1 ? 'S' : ''}`;
+            
+            if (data.items.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 50px 20px;">
+                        <i class="fas fa-shopping-bag" style="font-size: 50px; color: var(--muted-color); opacity: 0.3; margin-bottom: 20px;"></i>
+                        <h3 style="color: var(--text-color); margin-bottom: 10px;">Your bag is empty</h3>
+                        <p style="color: var(--muted-color); font-size: 13px; margin-bottom: 25px;">Looks like you haven't made your choice yet.</p>
+                        <a href="/shop" style="background: var(--accent-color); color: #000; padding: 12px 30px; border-radius: 30px; font-weight: bold; text-decoration: none; text-transform: uppercase; font-size: 11px;">Explore Collection</a>
+                    </div>
+                `;
+                document.getElementById('subtotalAmount').innerText = '৳ 0';
+                document.getElementById('totalAmount').innerText = '৳ 0';
+                document.getElementById('checkoutBtn').style.pointerEvents = 'none';
+                document.getElementById('checkoutBtn').style.opacity = '0.5';
+                
+                // Update global cart badge
+                if(window.updateGlobalCartCount) window.updateGlobalCartCount(0);
+                return;
+            }
+
+            let html = '';
+            let totalQty = 0;
+            data.items.forEach(item => {
+                totalQty += item.quantity;
+                html += `
+                    <div class="cart-item-card">
+                        <img src="/static/images/${item.image}" class="item-img" alt="${item.name}">
+                        <div class="item-details">
+                            <div class="item-top">
+                                <div>
+                                    <div class="item-name">${item.name}</div>
+                                    <div class="item-size">Size: ${item.size}</div>
+                                </div>
+                                <div class="item-price">৳ ${item.price}</div>
+                            </div>
+                            <div class="item-bottom">
+                                <div class="qty-controls">
+                                    <button class="qty-btn" onclick="updateQty(${item.cart_id}, 'decrease')">-</button>
+                                    <span class="qty-val">${item.quantity}</span>
+                                    <button class="qty-btn" onclick="updateQty(${item.cart_id}, 'increase')">+</button>
+                                </div>
+                                <button class="remove-btn" onclick="removeItem(${item.cart_id})">Remove Item</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            document.getElementById('subtotalAmount').innerText = `৳ ${data.total}`;
+            document.getElementById('totalAmount').innerText = `৳ ${data.total}`;
+            
+            document.getElementById('checkoutBtn').style.pointerEvents = 'auto';
+            document.getElementById('checkoutBtn').style.opacity = '1';
+
+            if(window.updateGlobalCartCount) window.updateGlobalCartCount(totalQty);
+        });
+    }
+
+    function updateQty(cartId, action) {
+        fetch('/api/update-cart', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({cart_id: cartId, action: action})
+        }).then(() => loadCart());
+    }
+
+    function removeItem(cartId) {
+        fetch('/api/remove-item', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({cart_id: cartId})
+        }).then(() => {
+            if(window.showGlobalToast) window.showGlobalToast("Item removed from bag.", "success");
+            loadCart();
+        });
+    }
+
+    // Load cart on page load
+    document.addEventListener('DOMContentLoaded', loadCart);
+</script>
+
+{% endblock %}

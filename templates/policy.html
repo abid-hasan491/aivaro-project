@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<div style="padding: 80px 5%; max-width: 800px; margin: 0 auto;">
+    <h1 style="font-size: 32px; font-weight: 900; margin-bottom: 30px; text-transform: uppercase;">{{ title }}</h1>
+    <div style="line-height: 1.8; color: #555;">
+        {% if page == 'returns' %}
+            <p>We offer a 7-day return policy for unused items in original packaging. Please contact support to initiate a return.</p>
+        {% elif page == 'shipping' %}
+            <p>Standard delivery takes 3-5 business days. Inside Dhaka delivery fee is 70 TK, outside is 130 TK.</p>
+        {% elif page == 'privacy' %}
+            <p>Your privacy is important to us. We do not share your personal data with third parties.</p>
+        {% else %}
+            <p>Content coming soon.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

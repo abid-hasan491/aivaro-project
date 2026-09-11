@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+    .contact-wrapper {
+        max-width: 1000px;
+        margin: 60px auto;
+        padding: 0 4vw;
+        text-align: center;
+    }
+
+    .contact-header {
+        margin-bottom: 50px;
+        animation: fadeInDown 0.8s ease;
+    }
+
+    /* 🔥 Fixed text color using variable */
+    .contact-title {
+        font-family: var(--font-head);
+        font-size: 42px;
+        color: var(--text-color); 
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        margin-bottom: 15px;
+    }
+
+    .contact-subtitle {
+        font-size: 14px;
+        color: var(--muted-color);
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .contact-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 40px;
+    }
+
+    /* 🔥 Fixed background using liquid-glass */
+    .contact-card {
+        padding: 50px 40px;
+        border-radius: 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transition: transform 0.4s ease, box-shadow 0.4s ease;
+        text-align: center;
+    }
+
+    .contact-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+
+    .icon-wrapper {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: rgba(198, 167, 94, 0.1);
+        color: var(--accent-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+        margin-bottom: 25px;
+        border: 1px solid rgba(198, 167, 94, 0.3);
+    }
+
+    .card-title {
+        font-family: var(--font-head);
+        font-size: 26px;
+        color: var(--text-color);
+        margin-bottom: 15px;
+    }
+
+    .card-value {
+        font-size: 16px;
+        color: var(--muted-color);
+        margin-bottom: 35px;
+        letter-spacing: 1px;
+    }
+
+    .action-btn {
+        width: 100%;
+        padding: 15px;
+        border-radius: 30px;
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        cursor: pointer;
+        transition: 0.3s;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        border: none;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background: var(--accent-color);
+        color: #000;
+        box-shadow: 0 10px 25px rgba(198, 167, 94, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: scale(1.05);
+        background: #fff;
+        color: #000;
+    }
+
+    .btn-secondary {
+        background: transparent;
+        color: var(--text-color);
+        border: 1px solid var(--glass-border);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(0,0,0,0.1);
+        border-color: var(--accent-color);
+    }
+    
+    body.light-theme .btn-secondary:hover {
+        background: rgba(0,0,0,0.05);
+    }
+
+    /* 📱 Mobile Responsive Fixes */
+    @media (max-width: 768px) {
+        .contact-grid {
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+        .contact-title {
+            font-size: 32px;
+        }
+        .contact-card {
+            padding: 40px 20px;
+        }
+    }
+</style>
+
+<div class="contact-wrapper">
+    <div class="contact-header">
+        <h1 class="contact-title">Contact Us</h1>
+        <p class="contact-subtitle">We are available to assist you with any inquiries. Reach out to us through any of the channels below.</p>
+    </div>
+
+    <div class="contact-grid">
+        <!-- Call Card -->
+        <div class="contact-card liquid-glass">
+            <div class="icon-wrapper">
+                <i class="fas fa-phone-alt"></i>
+            </div>
+            <h2 class="card-title">Call Us</h2>
+            <div class="card-value">01629797247</div>
+            
+            <a href="tel:01629797247" class="action-btn btn-primary">
+                <i class="fas fa-phone"></i> Call Now
+            </a>
+            <button onclick="copyContactText('01629797247', this)" class="action-btn btn-secondary">
+                <i class="far fa-copy"></i> Copy Number
+            </button>
+        </div>
+
+        <!-- Email Card -->
+        <div class="contact-card liquid-glass">
+            <div class="icon-wrapper">
+                <i class="fas fa-envelope"></i>
+            </div>
+            <h2 class="card-title">Email Us</h2>
+            <div class="card-value">aivaroclothing7@gmail.com</div>
+            
+            <a href="mailto:aivaroclothing7@gmail.com" class="action-btn btn-primary">
+                <i class="fas fa-paper-plane"></i> Send Email
+            </a>
+            <button onclick="copyContactText('aivaroclothing7@gmail.com', this)" class="action-btn btn-secondary">
+                <i class="far fa-copy"></i> Copy Email
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Copy function with local IP fallback
+    function copyContactText(text, btn) {
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text);
+        } else {
+            let textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-999999px";
+            textArea.style.top = "-999999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try { document.execCommand('copy'); } catch (err) {}
+            textArea.remove();
+        }
+        
+        if(window.showGlobalToast) {
+            window.showGlobalToast("Copied Successfully!", "success");
+        }
+        
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check-circle" style="color: #25D366;"></i> Copied!';
+        btn.style.borderColor = '#25D366';
+        
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.style.borderColor = 'var(--glass-border)';
+        }, 2000);
+    }
+</script>
+
+{% endblock %}

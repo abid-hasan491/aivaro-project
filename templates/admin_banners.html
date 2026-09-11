@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+    /* ============================ */
+    /* 🎛️ ADMIN LAYOUT & SIDEBAR    */
+    /* ============================ */
+    .admin-layout { display: flex; min-height: 100vh; background: #050505; }
+    
+    .admin-sidebar { 
+        width: 260px; background: #0a0a0a; border-right: 1px solid #222; 
+        position: fixed; height: 100vh; display: flex; flex-direction: column; 
+        padding: 30px 0; z-index: 100;
+    }
+    .admin-main { flex: 1; margin-left: 260px; padding: 40px; }
+
+    .sidebar-logo { font-family: var(--font-head); font-size: 28px; color: white; text-align: center; margin-bottom: 50px; letter-spacing: 3px; font-weight: 600;}
+    .sidebar-logo span { color: var(--accent-color); }
+    
+    .sidebar-menu { display: flex; flex-direction: column; gap: 8px; padding: 0 20px; flex: 1;}
+    .sidebar-link { 
+        display: flex; align-items: center; gap: 15px; padding: 14px 20px; 
+        color: #888; text-decoration: none; font-size: 12px; font-weight: 700; 
+        text-transform: uppercase; letter-spacing: 1px; border-radius: 8px; transition: 0.3s; 
+    }
+    .sidebar-link:hover, .sidebar-link.active { background: rgba(198,167,94,0.1); color: var(--accent-color); }
+    .sidebar-link i { font-size: 18px; width: 24px; text-align: center; }
+    
+    .sidebar-bottom { padding: 0 20px; margin-top: auto; border-top: 1px solid #222; padding-top: 25px; }
+
+    /* ============================ */
+    /* 🖼️ BANNERS PAGE CONTENT      */
+    /* ============================ */
+    .page-title { font-family: var(--font-head); font-size: 32px; color: var(--text-color); margin-bottom: 5px; }
+    .page-sub { font-size: 11px; color: var(--muted-color); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 40px; font-weight: 700;}
+    
+    .upload-card { background: #0a0a0a; border: 1px dashed var(--accent-color); border-radius: 16px; padding: 50px 20px; text-align: center; margin-bottom: 50px; transition: 0.3s; }
+    .upload-card:hover { background: rgba(198,167,94,0.02); }
+    .upload-icon { font-size: 40px; color: var(--accent-color); margin-bottom: 15px; animation: float 3s ease-in-out infinite; }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    
+    .custom-file-upload { display: inline-block; background: #000; border: 1px solid #333; color: white; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-size: 12px; transition: 0.3s; margin-bottom: 25px; font-weight: 600;}
+    .custom-file-upload:hover { border-color: var(--accent-color); color: var(--accent-color); }
+    input[type="file"] { display: none; }
+    
+    .upload-btn { background: var(--accent-color); color: #000; padding: 14px 35px; border: none; border-radius: 30px; font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: 0.3s; }
+    .upload-btn:hover { background: white; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(255,255,255,0.2); }
+
+    .banners-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
+    .banner-card { background: #0a0a0a; border-radius: 12px; overflow: hidden; border: 1px solid #222; position: relative; transition: 0.3s; }
+    .banner-card:hover { transform: translateY(-5px); border-color: var(--accent-color); box-shadow: 0 15px 30px rgba(0,0,0,0.5); }
+    .banner-media { width: 100%; height: 200px; object-fit: cover; display: block; }
+    .banner-footer { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: #000; border-top: 1px solid #222; }
+    .banner-id { font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;}
+    .delete-btn { background: rgba(231, 76, 60, 0.1); color: #e74c3c; border: 1px solid #e74c3c; padding: 8px 15px; border-radius: 6px; font-size: 10px; font-weight: 800; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;}
+    .delete-btn:hover { background: #e74c3c; color: #fff; }
+    
+    .media-badge { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.8); color: var(--accent-color); padding: 6px 12px; border-radius: 6px; font-size: 10px; font-weight: 800; z-index: 2; border: 1px solid var(--accent-color); letter-spacing: 1px;}
+</style>
+
+<div class="admin-layout">
+    <!-- 🔥 SIDEBAR -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-logo">AIV<span>A</span>RO</div>
+        <nav class="sidebar-menu">
+            <a href="/admin" class="sidebar-link"><i class="fas fa-box"></i> Products</a>
+            <a href="/admin/orders" class="sidebar-link"><i class="fas fa-shopping-bag"></i> Orders</a>
+            <a href="/admin/users" class="sidebar-link"><i class="fas fa-users"></i> Customers</a>
+            <a href="/admin/campaigns" class="sidebar-link"><i class="fas fa-ticket-alt"></i> Coupons</a>
+            <a href="/admin/banners" class="sidebar-link active"><i class="fas fa-image"></i> Banners</a>
+        </nav>
+        <div class="sidebar-bottom">
+            <a href="/" class="sidebar-link" style="color: #aaa;"><i class="fas fa-store"></i> Storefront</a>
+            <a href="/logout" class="sidebar-link" style="color: #ff4d4d;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </aside>
+
+    <!-- 📦 MAIN CONTENT -->
+    <main class="admin-main">
+        <h2 class="page-title">Manage Banners & Videos</h2>
+        <div class="page-sub">Control Homepage Sliders & Promotional Media</div>
+
+        <!-- Upload Section -->
+        <div class="upload-card">
+            <i class="fas fa-photo-video upload-icon"></i>
+            <h3 style="color: white; margin-bottom: 10px; font-family: var(--font-head); font-size: 24px;">Upload New Media</h3>
+            <p style="font-size: 12px; color: #888; margin-bottom: 25px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">RECOMMENDED: JPG/PNG for Images, MP4 for Videos</p>
+            
+            <form action="/admin/add-banner" method="POST" enctype="multipart/form-data">
+                <label class="custom-file-upload">
+                    <input type="file" name="banner_image" accept="image/*,video/mp4,video/webm" id="mediaInput" required onchange="document.getElementById('fileName').innerText = this.files[0].name">
+                    <i class="fas fa-cloud-upload-alt" style="margin-right: 8px;"></i> <span id="fileName">Select File from Device</span>
+                </label>
+                <br>
+                <button type="submit" class="upload-btn"><i class="fas fa-upload" style="margin-right: 5px;"></i> Upload Media</button>
+            </form>
+        </div>
+
+        <h3 style="color: white; margin-bottom: 25px; font-size: 16px; border-bottom: 1px dashed #333; padding-bottom: 15px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Active Media</h3>
+        
+        <!-- Display Section -->
+        <div class="banners-grid">
+            {% for banner in banners %}
+            <div class="banner-card">
+                {% set ext = banner.image_url.split('.')[-1].lower() %}
+                
+                {% if ext in ['mp4', 'webm', 'ogg'] %}
+                    <div class="media-badge"><i class="fas fa-video"></i> VIDEO</div>
+                    <video src="{{ url_for('static', filename='images/' + banner.image_url) }}" class="banner-media" autoplay muted loop playsinline></video>
+                {% else %}
+                    <div class="media-badge"><i class="fas fa-image"></i> IMAGE</div>
+                    <img src="{{ url_for('static', filename='images/' + banner.image_url) }}" class="banner-media">
+                {% endif %}
+                
+                <div class="banner-footer">
+                    <span class="banner-id">ID: #{{ banner.id }}</span>
+                    <form action="/admin/delete-banner/{{ banner.id }}" method="POST" onsubmit="return confirm('Delete this media?');">
+                        <button type="submit" class="delete-btn"><i class="fas fa-trash-alt"></i> Delete</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+</div>
+
+{% endblock %}

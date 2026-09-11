@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+    .admin-layout { display: flex; min-height: 100vh; background: var(--bg-color); }
+    .admin-sidebar { width: 260px; background: var(--panel-color); border-right: 1px solid var(--border-color); position: fixed; height: 100vh; display: flex; flex-direction: column; padding: 30px 0; z-index: 100; }
+    .admin-main { flex: 1; margin-left: 260px; padding: 40px; max-width: 1200px; }
+    
+    .sidebar-logo { font-family: var(--font-head); font-size: 28px; color: var(--text-color); text-align: center; margin-bottom: 50px; letter-spacing: 3px; font-weight: 600;}
+    .sidebar-logo span { color: var(--accent-color); }
+    .sidebar-menu { display: flex; flex-direction: column; gap: 8px; padding: 0 20px; flex: 1;}
+    .sidebar-link { display: flex; align-items: center; gap: 15px; padding: 14px 20px; color: var(--muted-color); text-decoration: none; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; border-radius: 8px; transition: 0.3s; }
+    .sidebar-link:hover, .sidebar-link.active { background: rgba(198,167,94,0.1); color: var(--accent-color); }
+    .sidebar-link i { font-size: 18px; width: 24px; text-align: center; }
+    .sidebar-bottom { padding: 0 20px; margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 25px; }
+
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+    .page-title { font-family: var(--font-head); font-size: 32px; color: var(--text-color); margin-bottom: 5px; display: flex; align-items: center; gap: 15px; }
+    .page-sub { font-size: 11px; color: var(--muted-color); text-transform: uppercase; letter-spacing: 2px; font-weight: 700; }
+    
+    .btn-add { background: var(--accent-color); color: #000; padding: 14px 25px; border-radius: 30px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; border: none; cursor: pointer; text-decoration: none;}
+    .btn-add:hover { background: #fff; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(198,167,94,0.3); }
+
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
+    .prod-card { background: rgba(15, 15, 15, 0.45); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); display: flex; gap: 15px; transition: 0.3s; }
+    body.light-theme .prod-card { background: rgba(255, 255, 255, 0.6); border-color: rgba(0,0,0,0.05); }
+    .prod-card:hover { transform: translateY(-5px); border-color: var(--accent-color); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+    
+    .p-img { width: 80px; height: 100px; object-fit: cover; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
+    .p-info { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+    .p-cat { font-size: 9px; color: var(--muted-color); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; font-weight: 700;}
+    .p-name { font-size: 15px; font-weight: 600; color: var(--text-color); margin-bottom: 5px; }
+    .p-price { font-size: 14px; font-weight: 700; color: var(--accent-color); margin-bottom: 10px; }
+    
+    .p-actions { display: flex; gap: 10px; }
+    .btn-icon { width: 32px; height: 32px; border-radius: 6px; display: flex; justify-content: center; align-items: center; font-size: 12px; cursor: pointer; transition: 0.3s; border: none; text-decoration: none; }
+    .btn-edit { background: rgba(52, 152, 219, 0.1); color: #3498db; border: 1px solid rgba(52, 152, 219, 0.3); }
+    .btn-edit:hover { background: #3498db; color: #fff; }
+    .btn-delete { background: rgba(231, 76, 60, 0.1); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.3); }
+    .btn-delete:hover { background: #e74c3c; color: #fff; }
+</style>
+
+<div class="admin-layout">
+    <!-- 🔥 DYNAMIC SIDEBAR -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-logo">AIV<span>A</span>RO</div>
+        <nav class="sidebar-menu">
+            <a href="/admin" class="sidebar-link {% if request.path == '/admin' %}active{% endif %}"><i class="fas fa-box"></i> Products</a>
+            <a href="/admin/orders" class="sidebar-link {% if request.path == '/admin/orders' %}active{% endif %}"><i class="fas fa-shopping-bag"></i> Orders</a>
+            <a href="/admin/users" class="sidebar-link {% if request.path == '/admin/users' %}active{% endif %}"><i class="fas fa-users"></i> Customers</a>
+            <a href="/admin/campaigns" class="sidebar-link {% if request.path == '/admin/campaigns' %}active{% endif %}"><i class="fas fa-ticket-alt"></i> Coupons</a>
+            <a href="/admin/banners" class="sidebar-link {% if request.path == '/admin/banners' %}active{% endif %}"><i class="fas fa-image"></i> Banners</a>
+            <a href="/admin/feedback" class="sidebar-link {% if request.path == '/admin/feedback' %}active{% endif %}"><i class="fas fa-comment-dots"></i> Feedback</a>
+        </nav>
+        <div class="sidebar-bottom">
+            <a href="/" class="sidebar-link" style="color: var(--muted-color);"><i class="fas fa-store"></i> Storefront</a>
+            <a href="/logout" class="sidebar-link" style="color: #ff4d4d;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <div class="page-header">
+            <div>
+                <h2 class="page-title"><i class="fas fa-box-open" style="color: var(--accent-color);"></i> Inventory</h2>
+                <div class="page-sub">Manage Your Luxury Products</div>
+            </div>
+            <a href="/admin/add-product-page" class="btn-add"><i class="fas fa-plus"></i> Add Product</a>
+        </div>
+
+        <div class="product-grid">
+            {% for p in products %}
+            <div class="prod-card">
+                <img src="{{ url_for('static', filename='images/' + p.images[0].image_url) if p.images else 'https://via.placeholder.com/80x100' }}" class="p-img">
+                <div class="p-info">
+                    <div class="p-cat">{{ p.category }} {% if p.is_luxury %}<i class="fas fa-gem" style="color:var(--accent-color); font-size:10px;"></i>{% endif %}</div>
+                    <div class="p-name">{{ p.name }}</div>
+                    <div class="p-price">৳ {{ p.final_price }}</div>
+                    <div class="p-actions">
+                        <a href="/admin/edit-product/{{ p.id }}" class="btn-icon btn-edit"><i class="fas fa-edit"></i></a>
+                        <form action="/admin/delete-product/{{ p.id }}" method="POST" onsubmit="return confirm('Delete this product?');" style="margin:0;">
+                            <button type="submit" class="btn-icon btn-delete"><i class="fas fa-trash-alt"></i></button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+</div>
+{% endblock %}

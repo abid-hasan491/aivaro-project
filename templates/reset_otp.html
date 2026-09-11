@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .auth-container { max-width: 450px; margin: 80px auto; padding: 40px; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #eee; text-align: center; }
+    .form-control { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 20px; text-align: center; letter-spacing: 5px; font-weight: bold; font-size: 18px; }
+    .auth-btn { width: 100%; padding: 15px; background: black; color: white; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; text-transform: uppercase; }
+</style>
+<div class="auth-container">
+    <h2 style="font-weight:800; margin-bottom:10px;">VERIFY OTP</h2>
+    <p style="color:#666; margin-bottom:30px; font-size:14px;">Check your email for the verification code.</p>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}{% for category, message in messages %}<div class="flash-msg {{ category }}" style="margin-bottom:20px; padding:10px; border-radius:6px; background:#ffebee; color:red;">{{ message }}</div>{% endfor %}{% endif %}
+    {% endwith %}
+    <form method="POST">
+        <input type="number" name="otp" class="form-control" placeholder="0000" required>
+        <button type="submit" class="auth-btn">VERIFY CODE</button>
+    </form>
+</div>
+{% endblock %}

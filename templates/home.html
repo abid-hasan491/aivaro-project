@@ -1,0 +1,392 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;800&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+<style>
+    /* ====================
+       GLOBAL RESET
+    ===================== */
+    :root {
+        --font-heading: 'Playfair Display', serif;
+        --font-body: 'Montserrat', sans-serif;
+    }
+
+    body { overflow-x: hidden; }
+    h1, h2, h3, h4 { font-family: var(--font-heading); margin: 0; line-height: 1.2; letter-spacing: 0.05em; }
+    a { text-decoration: none; color: inherit; transition: 0.3s; }
+    img { width: 100%; display: block; }
+
+    .container-fluid { max-width: 1400px; margin: 0 auto; padding: 0 4vw; }
+    .section-spacing { padding: 90px 0; }
+    .text-center { text-align: center; }
+
+    .section-header { margin-bottom: 50px; text-align: center; }
+    .section-subtitle { font-size: 12px; text-transform: uppercase; letter-spacing: 3px; color: var(--accent-color); margin-bottom: 10px; display: block; font-weight: 600; }
+    .section-title { font-size: 42px; font-weight: 500; position: relative; display: inline-block; color: var(--text-color); }
+    
+    /* ====================
+       1. HERO SLIDER
+    ===================== */
+    .hero-slider { width: 100%; height: 95vh; position: relative; overflow: hidden; background: #000; }
+    .swiper-slide { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    
+    .slide-bg {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; 
+        background-size: cover; background-position: center;
+        transform: scale(1); transition: transform 10s ease-out; z-index: 0;
+    }
+    .swiper-slide-active .slide-bg { transform: scale(1.15); }
+    .slide-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7)); z-index: 1; }
+
+    .slide-content { position: absolute; bottom: 15%; left: 6vw; z-index: 10; color: var(--text-color); max-width: 650px; padding: 40px; border-radius: 20px; }
+    .slide-sub { font-size: 14px; text-transform: uppercase; letter-spacing: 4px; margin-bottom: 15px; opacity: 0; transform: translateY(20px); transition: 0.8s ease; color: var(--accent-color); font-weight: 600;}
+    .slide-head { font-size: 72px; font-weight: 500; margin-bottom: 30px; opacity: 0; transform: translateY(30px); transition: 0.8s ease 0.2s; color: #FFF;}
+    .slide-btn { display: inline-block; padding: 16px 45px; background: var(--accent-color); color: #000; font-family: var(--font-body); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; border-radius: 30px; opacity: 0; transform: translateY(40px); transition: 0.8s ease 0.4s; }
+    .slide-btn:hover { background: #fff; color: #000; transform: translateY(-3px); box-shadow: 0 10px 20px rgba(255,255,255,0.2);}
+
+    .swiper-slide-active .slide-sub, .swiper-slide-active .slide-head, .swiper-slide-active .slide-btn { opacity: 1; transform: translateY(0); }
+    .swiper-button-next, .swiper-button-prev { color: rgba(255,255,255,0.5) !important; opacity: 0.7; transition: 0.3s; z-index: 10; }
+    .swiper-button-next:hover, .swiper-button-prev:hover { opacity: 1; color: #FFF !important; }
+    .swiper-pagination { z-index: 10; }
+
+    /* ====================
+       🔥 2. CINEMATIC SCROLL SHOWCASE (ONLY LUXURY)
+    ===================== */
+    .cinematic-showcase { position: relative; background: var(--bg-color); }
+    .showcase-sticky { position: sticky; top: 0; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .showcase-bg-gradient { position: absolute; inset: 0; background: radial-gradient(circle at center, rgba(198,167,94,0.1) 0%, var(--bg-color) 60%); z-index: 1; }
+
+    .showcase-frame { position: relative; width: 100%; max-width: 1200px; height: 75vh; display: flex; align-items: center; gap: 60px; padding: 0 4vw; z-index: 2; }
+    
+    .showcase-visual { width: 50%; height: 100%; position: relative; border-radius: 24px; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); }
+    .showcase-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(1.1) translateY(20px); transition: opacity 0.6s ease, transform 0.8s cubic-bezier(0.2, 1, 0.3, 1); will-change: opacity, transform; }
+    .showcase-img.active { opacity: 1; transform: scale(1) translateY(0); z-index: 2; }
+
+    .showcase-content { width: 50%; position: relative; height: 100%; display: flex; align-items: center; }
+    .showcase-text-item { position: absolute; width: 100%; opacity: 0; transform: translateY(40px); transition: opacity 0.6s ease, transform 0.8s cubic-bezier(0.2, 1, 0.3, 1); will-change: opacity, transform; }
+    .showcase-text-item.active { opacity: 1; transform: translateY(0); z-index: 2; }
+    
+    .sc-cat { font-size: 12px; color: var(--accent-color); text-transform: uppercase; letter-spacing: 4px; font-weight: 700; margin-bottom: 15px; }
+    .sc-title { font-family: var(--font-heading); font-size: 48px; font-weight: 500; color: var(--text-color); margin-bottom: 20px; line-height: 1.1; }
+    .sc-desc { font-size: 14px; color: var(--muted-color); line-height: 1.8; margin-bottom: 30px; max-width: 90%; }
+    .sc-price { font-family: var(--font-heading); font-size: 28px; color: var(--accent-color); font-weight: 600; margin-bottom: 30px; }
+    .sc-btn { display: inline-block; padding: 16px 40px; background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); border-radius: 30px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; transition: 0.3s; }
+    .sc-btn:hover { background: var(--accent-color); color: #000; }
+
+    .scroll-indicator { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 10px; z-index: 10; opacity: 0.5; }
+    .scroll-mouse { width: 24px; height: 36px; border: 2px solid var(--text-color); border-radius: 12px; position: relative; }
+    .scroll-wheel { width: 4px; height: 6px; background: var(--accent-color); border-radius: 2px; position: absolute; top: 6px; left: 50%; transform: translateX(-50%); animation: scrollWheel 1.5s infinite; }
+    @keyframes scrollWheel { 0% { top: 6px; opacity: 1; } 100% { top: 20px; opacity: 0; } }
+
+    /* ====================
+       3. TRENDING MARQUEE
+    ===================== */
+    .marquee-section { padding: 60px 0 90px; background: var(--bg-color); overflow: hidden; position: relative; border-top: 1px solid rgba(255,255,255,0.05); }
+    .marquee-container { display: flex; flex-direction: column; gap: 25px; position: relative; width: 100%; overflow: hidden; }
+    .marquee-container::before, .marquee-container::after { content: ''; position: absolute; top: 0; width: 180px; height: 100%; z-index: 5; pointer-events: none; }
+    .marquee-container::before { left: 0; background: linear-gradient(to right, var(--bg-color) 0%, transparent 100%); }
+    .marquee-container::after { right: 0; background: linear-gradient(to left, var(--bg-color) 0%, transparent 100%); }
+    .marquee-track { display: flex; gap: 20px; width: max-content; }
+    .track-left { animation: scrollLeft 40s linear infinite; }
+    .track-right { animation: scrollRight 40s linear infinite; }
+    .marquee-track:hover { animation-play-state: paused; }
+    @keyframes scrollLeft { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    @keyframes scrollRight { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } }
+
+    .marquee-card { width: 320px; aspect-ratio: 4/3; position: relative; border-radius: 8px; overflow: hidden; display: block; border: 1px solid rgba(255,255,255,0.05); transition: 0.4s cubic-bezier(0.2, 1, 0.3, 1); cursor: pointer; text-decoration: none; }
+    .marquee-card:hover { transform: scale(1.05); z-index: 10; border-color: var(--accent-color); box-shadow: 0 0 25px rgba(198, 167, 94, 0.3); }
+    .marquee-img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; transition: 0.5s; }
+    .marquee-card:hover .marquee-img { opacity: 1; transform: scale(1.1); }
+    .marquee-overlay { position: absolute; bottom: 0; left: 0; width: 100%; height: 60%; background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 60%, transparent 100%); display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding: 20px; text-align: center; }
+    .marquee-title { font-family: var(--font-heading); font-size: 16px; font-weight: 600; color: white; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
+    .marquee-price { font-family: var(--font-body); font-size: 13px; font-weight: 700; color: var(--accent-color); letter-spacing: 1px; }
+
+    /* ====================
+       4. PRODUCT GRID
+    ===================== */
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 40px 25px; }
+    .prod-card { position: relative; cursor: pointer; display: block; }
+    .prod-img-box { position: relative; overflow: hidden; aspect-ratio: 3 / 4; border-radius: 12px; background: rgba(0,0,0,0.2); margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); transition: 0.4s; }
+    .prod-card:hover .prod-img-box { border-color: var(--accent-color); box-shadow: 0 15px 30px rgba(198,167,94,0.15); }
+    .prod-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; opacity: 0.9; }
+    .prod-card:hover .prod-img { transform: scale(1.08); opacity: 1; }
+
+    .quick-view { position: absolute; bottom: 10px; left: 10px; right: 10px; background: rgba(0, 0, 0, 0.8); text-align: center; padding: 12px; border-radius: 30px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; transform: translateY(120%); transition: 0.4s cubic-bezier(0.19, 1, 0.22, 1); backdrop-filter: blur(4px); opacity: 0; color: var(--text-color); border: 1px solid var(--accent-color); }
+    .prod-card:hover .quick-view { transform: translateY(0); opacity: 1; }
+    .quick-view:hover { background: var(--accent-color); color: #000; }
+
+    .prod-meta { text-align: center; }
+    .prod-category { font-size: 10px; text-transform: uppercase; color: var(--muted-color); letter-spacing: 1px; margin-bottom: 8px; font-weight: 600; }
+    .prod-name { font-size: 15px; font-weight: 500; font-family: var(--font-body); margin-bottom: 8px; color: var(--text-color); transition: 0.3s;}
+    .prod-card:hover .prod-name { color: var(--accent-color); }
+    .prod-price { font-family: var(--font-heading); font-weight: 700; font-size: 18px; color: var(--accent-color); }
+    .old-price { font-size: 14px; text-decoration: line-through; color: #555; margin-left: 5px; font-weight: 400; }
+
+    /* ====================
+       5. PARALLAX BANNER (GLASS)
+    ===================== */
+    .banner-section { height: 600px; display: flex; align-items: center; justify-content: center; background-attachment: fixed; background-position: center; background-size: cover; position: relative; color: white; text-align: center; }
+    .banner-content { position: relative; z-index: 2; padding: 50px; border-radius: 20px; background: rgba(15, 15, 15, 0.45); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
+    .banner-head { font-size: 56px; margin-bottom: 15px; font-weight: 500; color: var(--text-color); }
+    .banner-text { font-size: 16px; margin-bottom: 30px; font-weight: 400; color: var(--muted-color); letter-spacing: 0.5px; }
+
+    /* ====================
+       📱 MOBILE OPTIMIZATION
+    ===================== */
+    @media (max-width: 900px) {
+        .container-fluid { padding: 0 15px; }
+        .section-spacing { padding: 60px 0; }
+        .hero-slider { height: 85vh; }
+        .slide-content { bottom: auto; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; text-align: center; padding: 30px 20px; border-radius: 16px; background: rgba(15, 15, 15, 0.45); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .slide-sub { font-size: 12px; letter-spacing: 2px; }
+        .slide-head { font-size: 42px; margin-bottom: 25px; line-height: 1.1; }
+        .slide-btn { padding: 14px 35px; font-size: 12px; }
+
+        /* Mobile Showcase */
+        .showcase-frame { flex-direction: column; height: 85vh; justify-content: center; gap: 30px; }
+        .showcase-visual { width: 100%; height: 45%; }
+        .showcase-content { width: 100%; height: 45%; align-items: flex-start; text-align: center; }
+        .showcase-text-item { position: absolute; width: 100%; left: 0; }
+        .sc-title { font-size: 32px; margin-bottom: 10px; }
+        .sc-desc { font-size: 13px; max-width: 100%; margin-bottom: 20px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;}
+        .sc-price { font-size: 24px; margin-bottom: 20px; }
+
+        .marquee-card { width: 220px; aspect-ratio: 1/1; }
+        .marquee-container::before, .marquee-container::after { width: 40px; }
+        .product-grid { grid-template-columns: repeat(2, 1fr); gap: 30px 15px; }
+        .quick-view { display: none; } 
+        .prod-name { font-size: 13px; height: 36px; overflow: hidden; }
+        .prod-price { font-size: 15px; }
+
+        .banner-section { height: 450px; background-attachment: scroll; } 
+        .banner-head { font-size: 32px; }
+        .banner-text { font-size: 13px; }
+        .banner-content { padding: 30px 20px; width: 90%; border-radius: 16px; }
+    }
+</style>
+
+<div class="swiper hero-slider">
+    <div class="swiper-wrapper">
+        {% if banners %}
+            {% for banner in banners %}
+            <div class="swiper-slide">
+                {% set ext = banner.image_url.split('.')[-1].lower() %}
+                {% if ext in ['mp4', 'webm', 'ogg'] %}
+                    <video class="slide-bg" src="{{ url_for('static', filename='images/' + banner.image_url) }}" autoplay muted loop playsinline></video>
+                {% else %}
+                    <div class="slide-bg" style="background-image: url('{{ url_for('static', filename='images/' + banner.image_url) }}');"></div>
+                {% endif %}
+                <div class="slide-overlay"></div>
+                <div class="slide-content">
+                    <div class="slide-sub">AIVARO Collection</div>
+                    <h2 class="slide-head">Elevate Your Style.</h2>
+                    <a href="/shop" class="slide-btn">Shop Now</a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="swiper-slide">
+                <div class="slide-bg" style="background-image: url('https://images.unsplash.com/photo-1490481651871-732d88097030?q=80&w=1920&auto=format&fit=crop');"></div>
+                <div class="slide-overlay"></div>
+                <div class="slide-content">
+                    <div class="slide-sub">New Arrivals</div>
+                    <h2 class="slide-head">Timeless Elegance.</h2>
+                    <a href="/shop" class="slide-btn">Explore</a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    <div class="swiper-button-next"></div>
+    <div class="swiper-button-prev"></div>
+    <div class="swiper-pagination"></div>
+</div>
+
+<!-- 🔥 CINEMATIC SCROLL SHOWCASE (HOME PAGE ONLY) -->
+{% set luxury_products = products | selectattr('is_luxury', 'equalto', True) | list %}
+{% if luxury_products and luxury_products|length > 0 %}
+<section class="cinematic-showcase" id="scrollShowcase" style="height: calc({{ luxury_products|length }} * 100vh + 50vh);">
+    <div class="showcase-sticky">
+        <div class="showcase-bg-gradient"></div>
+        
+        <div class="showcase-frame">
+            <div class="showcase-visual">
+                {% for p in luxury_products %}
+                <img src="{{ url_for('static', filename='images/' + p.images[0].image_url) if p.images else 'https://via.placeholder.com/600x800' }}" 
+                     class="showcase-img {% if loop.index == 1 %}active{% endif %}" 
+                     id="sc-img-{{ loop.index0 }}">
+                {% endfor %}
+            </div>
+
+            <div class="showcase-content">
+                {% for p in luxury_products %}
+                <div class="showcase-text-item {% if loop.index == 1 %}active{% endif %}" id="sc-txt-{{ loop.index0 }}">
+                    <div class="sc-cat">AIVARO Premium</div>
+                    <h2 class="sc-title">{{ p.name }}</h2>
+                    <p class="sc-desc">{{ p.description[:150] }}...</p>
+                    <div class="sc-price">৳ {{ p.final_price }}</div>
+                    <a href="/product/{{ p.id }}" class="sc-btn">View Details</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="scroll-indicator">
+            <div class="scroll-mouse"><div class="scroll-wheel"></div></div>
+            <span style="font-size: 10px; text-transform: uppercase; letter-spacing: 2px;">Scroll</span>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% if products and products|length > 0 %}
+<section class="marquee-section">
+    <div class="section-header" data-aos="fade-up">
+        <span class="section-subtitle">Discover The Best</span>
+        <h2 class="section-title">Trending Selection</h2>
+    </div>
+    
+    <div class="marquee-container" data-aos="fade-up" data-aos-delay="100">
+        <div class="marquee-track track-left">
+            {% for _ in range(4) %}
+                {% for p in products %}
+                <a href="/product/{{ p.id }}" class="marquee-card">
+                    <img src="{{ url_for('static', filename='images/' + p.images[0].image_url) if p.images else '' }}" class="marquee-img" onerror="this.src='https://via.placeholder.com/400x300'">
+                    <div class="marquee-overlay">
+                        <div class="marquee-title">{{ p.name }}</div>
+                        <div class="marquee-price">৳ {{ p.final_price }}</div>
+                    </div>
+                </a>
+                {% endfor %}
+            {% endfor %}
+        </div>
+
+        <div class="marquee-track track-right">
+            {% for _ in range(4) %}
+                {% for p in products|reverse %}
+                <a href="/product/{{ p.id }}" class="marquee-card">
+                    <img src="{{ url_for('static', filename='images/' + p.images[0].image_url) if p.images else '' }}" class="marquee-img" onerror="this.src='https://via.placeholder.com/400x300'">
+                    <div class="marquee-overlay">
+                        <div class="marquee-title">{{ p.name }}</div>
+                        <div class="marquee-price">৳ {{ p.final_price }}</div>
+                    </div>
+                </a>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<section class="section-spacing">
+    <div class="container-fluid">
+        <div class="section-header" data-aos="fade-up">
+            <span class="section-subtitle">Our Masterpieces</span>
+            <h2 class="section-title">Latest Arrivals</h2>
+        </div>
+
+        <div class="product-grid">
+            {% for product in products[:8] %}
+            <a href="/product/{{ product.id }}" class="prod-card" data-aos="fade-up" data-aos-delay="{{ loop.index * 50 }}">
+                <div class="prod-img-box">
+                    {% if product.images %}
+                    <img src="{{ url_for('static', filename='images/' + product.images[0].image_url) }}" alt="{{ product.name }}" class="prod-img">
+                    {% else %}
+                    <div style="height:100%; background:#1a1a1a;"></div>
+                    {% endif %}
+                    <div class="quick-view">View Details</div>
+                </div>
+                <div class="prod-meta">
+                    <div class="prod-category">{{ product.category }}</div>
+                    <h3 class="prod-name">{{ product.name }}</h3>
+                    <div class="prod-price">
+                        ৳ {{ product.final_price }}
+                        {% if product.discount > 0 %}<span class="old-price">৳ {{ product.price }}</span>{% endif %}
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+
+        <div class="text-center" style="margin-top: 60px;">
+            <a href="/shop" style="display:inline-block; border: 1px solid var(--accent-color); padding: 15px 40px; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--accent-color); border-radius: 30px; transition: 0.3s;">View Full Collection</a>
+        </div>
+    </div>
+</section>
+
+<section class="banner-section" style="background-image: url('https://images.unsplash.com/photo-1490481651871-732d88097030?q=80&w=1920&auto=format&fit=crop');">
+    <div class="slide-overlay"></div> 
+    <div class="banner-content" data-aos="zoom-in">
+        {% if coupon %}
+        <h2 class="banner-head">Season Sale</h2>
+        <p class="banner-text">Use code <strong style="color:var(--accent-color);">{{ coupon.code }}</strong> for {{ coupon.discount_percent }}% OFF on all orders over ৳ {{ coupon.min_spend }}.</p>
+        <a href="/shop" class="slide-btn" style="opacity:1; transform:translateY(0);">Shop Sale</a>
+        {% else %}
+        <h2 class="banner-head">The AIVARO Standard</h2>
+        <p class="banner-text">Quality craftsmanship meets contemporary design.</p>
+        <a href="/shop" class="slide-btn" style="opacity:1; transform:translateY(0);">Discover</a>
+        {% endif %}
+    </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+    AOS.init({ duration: 800, once: true, offset: 50 });
+
+    new Swiper('.hero-slider', {
+        loop: true, speed: 1200, effect: 'fade', 
+        autoplay: { delay: 6000, disableOnInteraction: false },
+        pagination: { el: '.swiper-pagination', clickable: true },
+        navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+    });
+
+    // 🔥 CINEMATIC SCROLL LOGIC
+    document.addEventListener('DOMContentLoaded', () => {
+        const showcase = document.getElementById('scrollShowcase');
+        if(!showcase) return;
+
+        const images = document.querySelectorAll('.showcase-img');
+        const texts = document.querySelectorAll('.showcase-text-item');
+        const totalItems = images.length;
+        if(totalItems === 0) return;
+
+        let ticking = false;
+
+        function updateShowcase() {
+            const rect = showcase.getBoundingClientRect();
+            const maxScroll = rect.height - window.innerHeight; 
+            
+            let scrollY = -rect.top;
+            if (scrollY < 0) scrollY = 0;
+            if (scrollY > maxScroll) scrollY = maxScroll;
+
+            let progress = scrollY / maxScroll;
+            let index = Math.floor(progress * totalItems);
+            if(index >= totalItems) index = totalItems - 1;
+
+            images.forEach((img, i) => {
+                if(i === index) img.classList.add('active');
+                else img.classList.remove('active');
+            });
+
+            texts.forEach((txt, i) => {
+                if(i === index) txt.classList.add('active');
+                else txt.classList.remove('active');
+            });
+
+            ticking = false;
+        }
+
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                window.requestAnimationFrame(updateShowcase);
+                ticking = true;
+            }
+        });
+    });
+</script>
+
+{% endblock %}
